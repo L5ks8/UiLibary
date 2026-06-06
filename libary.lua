@@ -9,14 +9,13 @@ local LocalPlayer = Players.LocalPlayer
 local Setup = {
     Keybind = Enum.KeyCode.RightControl,
     Transparency = 0,
-    ThemeMode = "Dark",
-    Blur = false
+    ThemeMode = "Dark"
 }
 
 local Themes = {
     Dark = {
         Primary = Color3.fromRGB(30, 30, 30),
-        Secondary = Color3.fromRGB(35, 35, 35),
+        Secondary = Color3.fromRGB(21, 21, 21),
         Component = Color3.fromRGB(40, 40, 40),
         Interactables = Color3.fromRGB(45, 45, 45),
         Tab = Color3.fromRGB(200, 200, 200),
@@ -25,12 +24,14 @@ local Themes = {
         Shadow = Color3.fromRGB(0, 0, 0),
         Outline = Color3.fromRGB(40, 40, 40),
         Icon = Color3.fromRGB(220, 220, 220),
-        Accent = Color3.fromRGB(248, 191, 212)
-    }
+        Accent = Color3.fromRGB(248, 191, 212),
+        TopbarActions = Color3.fromRGB(25, 25, 25)
+    },
+    -- Weitere Themes können hier analog zu ui.lua ergänzt werden
 }
 
 local Fonts = {
-    reg = Font.fromId(12187365364),
+    reg = Font.new("rbxassetid://12187365364"),
     bold = Font.fromId(12187365364, Enum.FontWeight.Bold),
     med = Font.fromId(12187365364, Enum.FontWeight.Medium),
     logo = Font.fromId(12187365364, Enum.FontWeight.Bold)
@@ -93,7 +94,7 @@ end
 --// Core Library
 function Library:CreateWindow(Settings)
     local Title = Settings.Title or "Goon Hub"
-    local Size = Settings.Size or UDim2.new(0, 850, 0, 580)
+    local WindowSize = Settings.Size or UDim2.new(0, 850, 0, 580)
     local Transparency = Settings.Transparency or 0
     local Theme = Themes.Dark
 
@@ -110,25 +111,28 @@ function Library:CreateWindow(Settings)
     local Screen = New("ScreenGui", { 
         Name = "GoonHub", 
         IgnoreGuiInset = true, 
-        ResetOnSpawn = false 
+        ResetOnSpawn = false,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     }, target)
+
     local Main = New("CanvasGroup", {
         Name = "Main",
         BackgroundColor3 = Theme.Primary,
         AnchorPoint = Vector2.new(0.5, 0.5),
-        Size = Size,
+        Size = WindowSize,
         Position = UDim2.new(0.5, 0, 0.5, 0),
         ClipsDescendants = true
     }, Screen)
 
     New("UICorner", { CornerRadius = UDim.new(0, 18) }, Main)
-    local Stroke = New("UIStroke", { 
+
+    New("UIStroke", { 
         Transparency = 0.75, 
         Thickness = 2, 
         Color = Color3.new(1, 1, 1) 
     }, Main)
 
-    -- Layout Structure
+    -- Panel Content
     local Content = New("Frame", { 
         Name = "Content", 
         Size = UDim2.new(1, 0, 1, -35), 
@@ -149,7 +153,8 @@ function Library:CreateWindow(Settings)
         BackgroundTransparency = 1 
     }, Content)
 
-    New("UIListLayout", { 
+    New("UIListLayout", {
+        SortOrder = Enum.SortOrder.LayoutOrder,
         Padding = UDim.new(0, 7), 
         HorizontalAlignment = Enum.HorizontalAlignment.Center 
     }, Sidebar)
@@ -174,16 +179,115 @@ function Library:CreateWindow(Settings)
     }, NavHolder)
 
     New("UIListLayout", { 
+        SortOrder = Enum.SortOrder.LayoutOrder,
         Padding = UDim.new(0, 5), 
         HorizontalAlignment = Enum.HorizontalAlignment.Center 
     }, NavScroll)
 
+    New("UIPadding", {
+        PaddingLeft = UDim.new(0, 8),
+        PaddingRight = UDim.new(0, 8),
+        PaddingTop = UDim.new(0, 2)
+    }, NavScroll)
+
+    -- Sidebar Profile (User Section)
+    local UserPanel = New("ImageButton", {
+        Name = "UserPanel",
+        Parent = Sidebar,
+        Size = UDim2.new(1, -22, 0, 48),
+        BackgroundColor3 = Color3.fromRGB(9, 9, 9),
+        BackgroundTransparency = 0.7,
+        LayoutOrder = 10,
+        AutoButtonColor = false
+    })
+    New("UICorner", { CornerRadius = UDim.new(0, 15) }, UserPanel)
+    New("UIListLayout", {
+        FillDirection = Enum.FillDirection.Horizontal,
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        Padding = UDim.new(0, 10)
+    }, UserPanel)
+    New("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 35) }, UserPanel)
+
+    local AvatarFrame = New("Frame", {
+        Parent = UserPanel,
+        Size = UDim2.new(0, 26, 0, 26),
+        BackgroundTransparency = 1
+    })
+    local Avatar = New("ImageLabel", {
+        Parent = AvatarFrame,
+        Size = UDim2.new(1, 0, 1, 0),
+        Image = "rbxthumb://type=AvatarHeadShot&id=" .. LocalPlayer.UserId .. "&w=150&h=150",
+        BackgroundTransparency = 1
+    })
+    New("UICorner", { CornerRadius = UDim.new(1, 0) }, Avatar)
+
+    local UserInfo = New("Frame", {
+        Parent = UserPanel,
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1
+    })
+    New("UIListLayout", { VerticalAlignment = Enum.VerticalAlignment.Center }, UserInfo)
+    New("UIFlexItem", { FlexMode = Enum.UIFlexMode.Fill }, UserInfo)
+
+    New("TextLabel", {
+        Parent = UserInfo,
+        Size = UDim2.new(1, 0, 0, 15),
+        Text = LocalPlayer.DisplayName,
+        FontFace = Fonts.bold,
+        TextSize = 15,
+        TextColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd
+    })
+    New("TextLabel", {
+        Parent = UserInfo,
+        Size = UDim2.new(1, 0, 0, 10),
+        Text = "@" .. LocalPlayer.Name,
+        FontFace = Fonts.reg,
+        TextSize = 13,
+        TextColor3 = Color3.new(0.6, 0.6, 0.6),
+        BackgroundTransparency = 1,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd
+    })
+
+    -- Debug Bar (Bottom Info)
+    local DebugBar = New("Frame", {
+        Name = "DebugBar",
+        Parent = Main,
+        Size = UDim2.new(1, 0, 0, 30),
+        Position = UDim2.new(0, 0, 1, 0),
+        AnchorPoint = Vector2.new(0, 1),
+        BackgroundColor3 = Color3.new(0, 0, 0),
+        BackgroundTransparency = 0.9
+    })
+    New("UIStroke", { Color = Color3.fromRGB(46, 46, 46) }, DebugBar)
+    New("UIListLayout", {
+        FillDirection = Enum.FillDirection.Horizontal,
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        Padding = UDim.new(0, 15)
+    }, DebugBar)
+    New("UIPadding", { PaddingLeft = UDim.new(0, 18) }, DebugBar)
+
+    local function CreateStatLabel(text, color)
+        local f = New("Frame", { Parent = DebugBar, AutomaticSize = Enum.AutomaticSize.XY, BackgroundTransparency = 1 })
+        New("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 4) }, f)
+        New("TextLabel", { Parent = f, Text = text, TextColor3 = color, FontFace = Fonts.med, TextSize = 14, BackgroundTransparency = 1, AutomaticSize = Enum.AutomaticSize.X })
+        return New("TextLabel", { Parent = f, Text = "--", TextColor3 = Color3.new(1, 1, 1), FontFace = Fonts.med, TextSize = 14, BackgroundTransparency = 1, AutomaticSize = Enum.AutomaticSize.X })
+    end
+
+    local MemoryLabel = CreateStatLabel("Memory Usage:", Color3.fromRGB(255, 255, 81))
+    local PingLabel = CreateStatLabel("Avg. Ping:", Color3.fromRGB(255, 255, 81))
+    local FPSLabel = New("TextLabel", { Parent = DebugBar, Text = "FPS: --", FontFace = Fonts.med, TextSize = 14, TextColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 1, AutomaticSize = Enum.AutomaticSize.XY })
+
+    -- Page Container
     local PageHolder = New("Frame", { 
         Name = "PageHolder", 
         Size = UDim2.new(1, -235, 1, 0), 
         Position = UDim2.new(1, 0, 1, 0), 
         AnchorPoint = Vector2.new(1, 1), 
-        BackgroundColor3 = Color3.fromRGB(21, 21, 21), 
+        BackgroundColor3 = Theme.Secondary, 
         BackgroundTransparency = 0.7 
     }, Content)
 
@@ -194,42 +298,117 @@ function Library:CreateWindow(Settings)
         TweenTime = 0.45 
     }, PageHolder)
 
+    -- Topbar Structure
     local Topbar = New("Frame", { 
         Name = "Topbar",
         Size = UDim2.new(1, 0, 0, 35),
         BackgroundTransparency = 1
     }, Main)
 
-    local Buttons = New("Frame", {
-        Name = "Buttons",
-        Size = UDim2.new(0, 80, 1, 0),
-        Position = UDim2.new(1, -90, 0, 0),
-        BackgroundTransparency = 1
+    New("UIListLayout", {
+        FillDirection = Enum.FillDirection.Horizontal,
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        Padding = UDim.new(0, 10)
     }, Topbar)
+    New("UIPadding", { PaddingLeft = UDim.new(0, 15), PaddingRight = UDim.new(0, 15) }, Topbar)
 
-    local CloseBtn = New("TextButton", {
-        Name = "Close",
-        Size = UDim2.new(0, 25, 0, 25),
-        Position = UDim2.new(1, -25, 0.5, -12),
-        BackgroundColor3 = Color3.fromRGB(200, 50, 50),
-        Text = "",
-        AutoButtonColor = true
-    }, Buttons)
-    New("UICorner", { CornerRadius = UDim.new(1, 0) }, CloseBtn)
-    CloseBtn.MouseButton1Click:Connect(function() Screen:Destroy() end)
-
-    local TitleLabel = New("TextLabel", {
-        Position = UDim2.new(0, 15, 0, 0),
-        Size = UDim2.new(0, 0, 1, 0),
+    local LogoFrame = New("Frame", {
+        Name = "LogoFrame",
+        Parent = Topbar,
         AutomaticSize = Enum.AutomaticSize.X,
-        Text = string.format("<font color=\"rgb(248, 191, 212)\">Goon</font>Hub | %s", Title),
+        Size = UDim2.new(0, 0, 1, 0),
+        BackgroundTransparency = 1
+    })
+
+    New("TextLabel", {
+        Parent = LogoFrame,
+        AutomaticSize = Enum.AutomaticSize.X,
+        Size = UDim2.new(0, 0, 1, 0),
+        Text = string.format("<font color=\"rgb(248, 191, 212)\">Goon</font>Hub<font color=\"rgb(150,150,150)\">| %s</font>", Title),
         RichText = true, 
         FontFace = Fonts.logo, 
-        TextSize = 20, 
+        TextSize = 24, 
         TextColor3 = Color3.new(1, 1, 1), 
         BackgroundTransparency = 1, 
         TextXAlignment = Enum.TextXAlignment.Left
-    }, Topbar)
+    })
+
+    local Spacer = New("Frame", { Parent = Topbar, BackgroundTransparency = 1 })
+    New("UIFlexItem", { FlexMode = Enum.UIFlexMode.Fill }, Spacer)
+
+    -- Weather Icon
+    New("ImageLabel", {
+        Parent = Topbar,
+        Size = UDim2.new(0, 21, 0, 21),
+        Image = "rbxassetid://13056160366",
+        BackgroundTransparency = 1
+    })
+
+    -- Topbar Actions Frame
+    local ActionsFrame = New("Frame", {
+        Parent = Topbar,
+        Name = "Actions",
+        Size = UDim2.new(0, 80, 1, 0),
+        BackgroundTransparency = 1
+    })
+
+    local ActionBackground = New("Frame", {
+        Parent = ActionsFrame,
+        Size = UDim2.new(1, 0, 0, 27),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        BackgroundColor3 = Theme.TopbarActions
+    })
+    New("UICorner", { CornerRadius = UDim.new(1, 0) }, ActionBackground)
+    New("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Center, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 4) }, ActionBackground)
+
+    local function CreateTopButton(name, color, iconId)
+        local btn = New("ImageButton", { Name = name, Size = UDim2.new(0, 22, 0, 22), BackgroundTransparency = 1, Parent = ActionBackground })
+        local circle = New("Frame", { Size = UDim2.new(0, 18, 0, 18), Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundColor3 = color, Parent = btn })
+        New("UICorner", { CornerRadius = UDim.new(1, 0) }, circle)
+        New("ImageLabel", { Size = UDim2.new(0, 8, 0, 8), Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), Image = "rbxassetid://" .. iconId, ImageColor3 = Color3.new(0,0,0), BackgroundTransparency = 1, Parent = btn, ZIndex = 5 })
+        return btn
+    end
+
+    local CloseBtn = CreateTopButton("close", Color3.fromRGB(255, 51, 51), "109757326745560")
+    local SidebarBtn = CreateTopButton("sidebar", Color3.fromRGB(226, 183, 26), "4773248567")
+    local MaximizeBtn = CreateTopButton("maximize", Color3.fromRGB(122, 214, 3), "11295291707")
+
+    CloseBtn.MouseButton1Click:Connect(function() Screen:Destroy() end)
+    
+    local sidebarVisible = true
+    SidebarBtn.MouseButton1Click:Connect(function()
+        sidebarVisible = not sidebarVisible
+        Tween(Sidebar, 0.3, { Size = sidebarVisible and UDim2.new(0, 220, 1, 0) or UDim2.new(0, 0, 1, 0) })
+    end)
+
+    -- Resize Handle
+    local ResizeHandle = New("ImageButton", {
+        Name = "Resize",
+        Parent = Main,
+        Size = UDim2.new(0, 35, 0, 35),
+        Position = UDim2.new(1, -8, 1, -8),
+        AnchorPoint = Vector2.new(1, 1),
+        BackgroundTransparency = 1,
+        ZIndex = 100
+    })
+    New("ImageLabel", {
+        Parent = ResizeHandle,
+        Size = UDim2.new(1, 0, 1, 0),
+        Image = "rbxassetid://88780680171023",
+        ImageColor3 = Color3.fromRGB(91, 91, 91),
+        BackgroundTransparency = 1
+    })
+
+    -- Stats Loop (FPS/Ping/Mem)
+    task.spawn(function()
+        while task.wait(1) and Screen.Parent do
+            local fps = math.floor(1 / RunService.RenderStepped:Wait())
+            FPSLabel.Text = "FPS: " .. fps .. "/s"
+            PingLabel.Text = math.floor(game:GetService("Stats").PerformanceStats.Ping:GetValue()) .. " ms"
+            MemoryLabel.Text = string.format("%.1f MB", game:GetService("Stats"):GetTotalMemoryUsageMb())
+        end
+    end)
 
     -- Dragging Logic
     local dragging, dragStart, startPos
@@ -691,7 +870,7 @@ function Library:CreateWindow(Settings)
     end)
 
     -- Initialization
-    SetProperty(Main, { Size = Size, Visible = true })
+    SetProperty(Main, { Size = WindowSize, Visible = true })
     Animations:Open(Main, Transparency)
 
     return Options
