@@ -822,7 +822,7 @@ function Library:CreateWindow(config)
                 AutomaticSize = Enum.AutomaticSize.Y,
                 BackgroundColor3 = Color3.fromRGB(30, 30, 30),
                 LayoutOrder = self.SectionCount,
-                ClipsDescendants = true
+                ClipsDescendants = false
             }, parent)
 
             New("UICorner", {CornerRadius = UDim.new(0, 6)}, secFrame)
@@ -849,7 +849,8 @@ function Library:CreateWindow(config)
                 Position = UDim2.new(0, 10, 0, 35),
                 Size = UDim2.new(1, -20, 0, 0),
                 AutomaticSize = Enum.AutomaticSize.Y,
-                BackgroundTransparency = 1
+                BackgroundTransparency = 1,
+                ClipsDescendants = false
             }, secFrame)
 
             New("UIListLayout", {
@@ -885,6 +886,9 @@ function Library:CreateWindow(config)
                 toggleBtn.MouseButton1Click:Connect(function()
                     dropped = not dropped
                     if not dropped then
+                        container.ClipsDescendants = true
+                        secFrame.ClipsDescendants = true
+                        
                         local currentHeight = container.AbsoluteSize.Y
                         container.AutomaticSize = Enum.AutomaticSize.None
                         container.Size = UDim2.new(1, -20, 0, currentHeight)
@@ -904,6 +908,8 @@ function Library:CreateWindow(config)
                             end
                         end)
                     else
+                        container.ClipsDescendants = false
+                        secFrame.ClipsDescendants = false
                         container.Visible = true
                         container.Size = UDim2.new(1, -20, 0, 0)
                         container.AutomaticSize = Enum.AutomaticSize.Y
