@@ -812,6 +812,7 @@ function Library:CreateWindow(config)
         function Tab:CreateSection(sectionTitle, columnSelection)
             local title = type(sectionTitle) == "table" and sectionTitle.Title or sectionTitle
             local colName = type(sectionTitle) == "table" and sectionTitle.Column or columnSelection
+            local droppable = type(sectionTitle) == "table" and sectionTitle.Droppable or false
             
             local parent = getWidgetParent(nil, colName)
             self.SectionCount = self.SectionCount + 1
@@ -820,7 +821,8 @@ function Library:CreateWindow(config)
                 Size = UDim2.new(1, 0, 0, 32),
                 AutomaticSize = Enum.AutomaticSize.Y,
                 BackgroundColor3 = Color3.fromRGB(30, 30, 30),
-                LayoutOrder = self.SectionCount
+                LayoutOrder = self.SectionCount,
+                ClipsDescendants = true
             }, parent)
 
             New("UICorner", {CornerRadius = UDim.new(0, 6)}, secFrame)
@@ -859,6 +861,35 @@ function Library:CreateWindow(config)
                 PaddingBottom = UDim.new(0, 8),
                 PaddingTop = UDim.new(0, 4)
             }, container)
+
+            if droppable then
+                local arrow = New("TextLabel", {
+                    Size = UDim2.new(0, 20, 0, 32),
+                    Position = UDim2.new(1, -25, 0, 0),
+                    Text = "▼",
+                    TextColor3 = Color3.fromRGB(150, 150, 150),
+                    FontFace = fonts.bold,
+                    TextSize = 10,
+                    BackgroundTransparency = 1,
+                    ZIndex = 4
+                }, secFrame)
+
+                local toggleBtn = New("TextButton", {
+                    Size = UDim2.new(1, 0, 0, 32),
+                    BackgroundTransparency = 1,
+                    Text = "",
+                    ZIndex = 5
+                }, secFrame)
+
+                local dropped = true
+                toggleBtn.MouseButton1Click:Connect(function()
+                    dropped = not dropped
+                    container.Visible = dropped
+                    TweenService:Create(arrow, TweenInfo.new(0.25, Enum.EasingStyle.Quart), {
+                        Rotation = dropped and 0 or -90
+                    }):Play()
+                end)
+            end
 
             local Section = {
                 WidgetCount = 0
