@@ -1,0 +1,158 @@
+-- Dropdown Component
+return function(Tab, mainfunctions, configTitle, configOptions, callback, overrideParent, layoutOrder)
+    local TweenService = game:GetService("TweenService")
+    local New = mainfunctions.New
+    local fonts = mainfunctions.GetFonts()
+
+    local title = type(configTitle) == "table" and configTitle.Title or configTitle
+    local options = type(configTitle) == "table" and configTitle.Options or configOptions
+    local cb = type(configTitle) == "table" and configTitle.Callback or callback
+    local default = type(configTitle) == "table" and configTitle.Default or (options and options[1] or "None")
+    local colName = type(configTitle) == "table" and configTitle.Column or nil
+    
+    local parent = Tab.getWidgetParent(overrideParent, colName)
+    Tab.WidgetCount = Tab.WidgetCount + 1
+    local lOrder = layoutOrder or Tab.WidgetCount
+
+    local dropped = false
+    local selected = default
+    
+    local dropdownFrame = New("Frame", {
+        Size = UDim2.new(1, 0, 0, 44),
+        BackgroundColor3 = Color3.fromRGB(30, 30, 30),
+        LayoutOrder = lOrder,
+        ClipsDescendants = true
+    }, parent)
+
+    New("UICorner", {CornerRadius = UDim.new(0, 6)}, dropdownFrame)
+
+    New("UIStroke", {
+        Color = Color3.fromRGB(45, 45, 45),
+        Thickness = 1,
+        Transparency = 0.5
+    }, dropdownFrame)
+
+    New("TextLabel", {
+        Size = UDim2.new(1, -20, 0, 18),
+        Position = UDim2.new(0, 10, 0, 2),
+        Text = title,
+        TextColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1, 
+        TextXAlignment = Enum.TextXAlignment.Left,
+        FontFace = fonts.bold,
+        TextSize = 14
+    }, dropdownFrame)
+
+    local btn = New("TextButton", {
+        Size = UDim2.new(1, -20, 0, 24),
+        Position = UDim2.new(0, 10, 0, 18),
+        BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+        Text = "  " .. selected,
+        TextColor3 = mainfunctions.CurrentAccent,
+        FontFace = fonts.bold,
+        TextSize = 13,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        AutoButtonColor = false
+    }, dropdownFrame)
+
+    New("UICorner", {CornerRadius = UDim.new(0, 4)}, btn)
+
+    local arrow = New("TextLabel", {
+        Size = UDim2.new(0, 20, 0, 20),
+        Position = UDim2.new(1, -25, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Text = "▼",
+        BackgroundTransparency = 1,
+        TextColor3 = Color3.new(1, 1, 1),
+        TextSize = 12
+    }, btn)
+
+    local list = New("ScrollingFrame", {
+        Name = "list",
+        Position = UDim2.new(0, 10, 0, 48),
+        Size = UDim2.new(1, -20, 1, -50),
+        BackgroundTransparency = 1,
+        Visible = false,
+        ScrollBarThickness = 3,
+        ScrollBarImageColor3 = mainfunctions.CurrentAccent,
+        AutomaticCanvasSize = Enum.AutomaticSize.Y,
+        CanvasSize = UDim2.new(0, 0, 0, 0)
+    }, dropdownFrame)
+
+    local listLayout = New("UIListLayout", {Padding = UDim.new(0, 4)}, list)
+    
+    local function populateOptions(listOptions)
+        for _, child in pairs(list:GetChildren()) do
+            if child:IsA("TextButton") then 
+                child:Destroy() 
+            end
+        end
+        
+        for _, opt in pairs(listOptions) do
+            local optionBtn = New("TextButton", {
+                Size = UDim2.new(1, 0, 0, 28),
+                BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+                Text = "  " .. tostring(opt),
+                TextColor3 = Color3.new(0.8, 0.8, 0.8), 
+                FontFace = fonts.bold,
+                TextSize = 13,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                AutoButtonColor = false
+            }, list)
+            
+            New("UICorner", {CornerRadius = UDim.new(0, 4)}, optionBtn)
+            
+            optionBtn.MouseEnter:Connect(function()
+                TweenService:Create(optionBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 55, 55), TextColor3 = Color3.new(1, 1, 1)}):Play()
+            end)
+            optionBtn.MouseLeave:Connect(function()
+                TweenService:Create(optionBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 45), TextColor3 = Color3.new(0.8, 0.8, 0.8)}):Play()
+            end)
+
+            optionBtn.MouseButton1Click:Connect(function()
+                selected = opt 
+                btn.Text = "  " .. tostring(opt) 
+                dropped = false 
+                list.Visible = false
+                
+                if parent:IsA("ScrollingFrame") then
+                    parent.ScrollingEnabled = true
+                end
+                
+                TweenService:Create(dropdownFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quart), {Size = UDim2.new(1, 0, 0, 44)}):Play()
+                TweenService:Create(arrow, TweenInfo.new(0.35, Enum.EasingStyle.Quart), {Rotation = 0}):Play()
+                if cb then 
+                    pcall(cb, opt) 
+                end
+            end)
+        end
+    end
+    
+    populateOptions(options)
+    
+    btn.MouseButton1Click:Connect(function()
+        dropped = not dropped
+        list.Visible = dropped
+        
+        if parent:IsA("ScrollingFrame") then
+            parent.ScrollingEnabled = not dropped
+        end
+        
+        local targetHeight = dropped and math.min(listLayout.AbsoluteContentSize.Y + 54, 200) or 44
+        TweenService:Create(dropdownFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quart), {Size = UDim2.new(1, 0, 0, targetHeight)}):Play()
+        TweenService:Create(arrow, TweenInfo.new(0.35, Enum.EasingStyle.Quart), {Rotation = dropped and 180 or 0}):Play()
+    end)
+
+    return {
+        Refresh = function(_, newList)
+            populateOptions(newList)
+        end,
+        Set = function(_, value)
+            selected = value
+            btn.Text = "  " .. tostring(value)
+            if cb then 
+                pcall(cb, value) 
+            end
+        end
+    }
+end
