@@ -1,5 +1,7 @@
 -- GoonHub UI Library Mainframe
 return function(mainfunktions)
+    local RunService = game:GetService("RunService")
+    local TweenService = game:GetService("TweenService")
     local Library = {}
     Library.TabCount = 0
     Library.Themes = mainfunktions.Themes
@@ -32,7 +34,6 @@ function Library:CreateWindow(config)
         targetParent["GoonHub"]:Destroy() 
     end
 
-    -- ScreenGui
     G2L["1"] = New("ScreenGui", {
         IgnoreGuiInset = true,
         Name = "GoonHub",
@@ -40,7 +41,6 @@ function Library:CreateWindow(config)
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     }, targetParent)
 
-    -- Main Container Frame
     G2L["2"] = New("Frame", {
         BackgroundColor3 = mainfunktions.CurrentMain,
         AnchorPoint = Vector2.new(0.5, 0.5),
@@ -51,14 +51,7 @@ function Library:CreateWindow(config)
     }, G2L["1"])
 
     New("UICorner", {CornerRadius = UDim.new(0, 18)}, G2L["2"])
-    
-    local mainStroke = New("UIStroke", {
-        Transparency = 0.75,
-        Thickness = 2,
-        Color = Color3.fromRGB(255, 255, 255)
-    }, G2L["2"])
 
-    -- Control Panel Frame
     G2L["4"] = New("Frame", {
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
@@ -72,7 +65,6 @@ function Library:CreateWindow(config)
         Name = "controls"
     }, G2L["4"])
 
-    -- Resize Trigger Handle
     G2L["b"] = New("ImageButton", {
         Size = UDim2.new(0, 35, 0, 35),
         Position = UDim2.new(1, -8, 1, -8),
@@ -89,7 +81,6 @@ function Library:CreateWindow(config)
         BackgroundTransparency = 1
     }, G2L["b"])
 
-    -- Page Container Frame
     G2L["10"] = New("Frame", {
         Size = UDim2.new(1, 0, 1, -35),
         Position = UDim2.new(0.5, 0, 1, 0),
@@ -104,7 +95,6 @@ function Library:CreateWindow(config)
         PaddingRight = UDim.new(0, 15)
     }, G2L["10"])
 
-    -- Header Topbar
     G2L["65"] = New("Frame", {
         Size = UDim2.new(1, 0, 0, 35),
         Position = UDim2.new(0, 0, 0, 0),
@@ -126,7 +116,6 @@ function Library:CreateWindow(config)
         PaddingRight = UDim.new(0, 15)
     }, G2L["65"])
 
-    -- Header Action Buttons Wrapper
     G2L["6e"] = New("Frame", {
         Size = UDim2.new(0, 85, 0, 35),
         BackgroundTransparency = 1,
@@ -142,7 +131,6 @@ function Library:CreateWindow(config)
 
     New("UIFlexItem", {FlexMode = Enum.UIFlexMode.Fill}, spacer)
 
-    -- Logo Frame
     G2L["6c"] = New("Frame", {
         AutomaticSize = Enum.AutomaticSize.X,
         Size = UDim2.new(0, 0, 0, 35),
@@ -168,7 +156,6 @@ function Library:CreateWindow(config)
         TextTruncate = Enum.TextTruncate.AtEnd
     }, G2L["6c"])
 
-    -- Accent Weather Icon decoration
     G2L["weather"] = New("ImageLabel", {
         Size = UDim2.new(0, 21, 0, 21),
         Image = "rbxassetid://13056160366",
@@ -177,7 +164,6 @@ function Library:CreateWindow(config)
         LayoutOrder = 4
     }, G2L["65"])
 
-    -- Action Buttons pill container
     G2L["70"] = New("Frame", {
         Size = UDim2.new(1, 0, 0, 27),
         AnchorPoint = Vector2.new(0.5, 0.5),
@@ -258,7 +244,6 @@ function Library:CreateWindow(config)
     G2L["80"] = CreateTopButton("sidebar_toggle", Color3.fromRGB(226, 183, 26), "4773248567", 2)
     G2L["94"] = CreateTopButton("maximize", Color3.fromRGB(122, 214, 3), "11295291707", 3)
 
-    -- Right Content Screen frame
     G2L["11"] = New("Frame", {
         Size = UDim2.new(1, -235, 1, 0),
         Position = UDim2.new(1, 0, 1, 0),
@@ -281,7 +266,6 @@ function Library:CreateWindow(config)
         TouchInputEnabled = false
     }, G2L["11"])
 
-    -- Left Navigation Sidebar frame
     G2L["16"] = New("Frame", {
         Size = UDim2.new(0, 220, 1, 0),
         BackgroundTransparency = 1,
@@ -295,7 +279,6 @@ function Library:CreateWindow(config)
         SortOrder = Enum.SortOrder.LayoutOrder
     }, G2L["16"])
 
-    -- Navigation links list container
     G2L["4b"] = New("Frame", {
         Size = UDim2.new(1, -22, 0, 0),
         BackgroundColor3 = Color3.fromRGB(9, 9, 9),
@@ -327,7 +310,6 @@ function Library:CreateWindow(config)
         PaddingTop = UDim.new(0, 2)
     }, G2L["4c"])
 
-    -- Fixed settings/anchored buttons list at bottom of sidebar
     G2L["18"] = New("Frame", {
         Size = UDim2.new(1, -22, 0, 0),
         AutomaticSize = Enum.AutomaticSize.Y,
@@ -359,7 +341,6 @@ function Library:CreateWindow(config)
         SortOrder = Enum.SortOrder.LayoutOrder
     }, G2L["19"])
 
-    -- User Profile Button card
     G2L["38"] = New("ImageButton", {
         Size = UDim2.new(1, -22, 0, 48),
         BackgroundColor3 = Color3.fromRGB(9, 9, 9),
@@ -429,7 +410,6 @@ function Library:CreateWindow(config)
         TextTruncate = Enum.TextTruncate.AtEnd
     }, infoFrame)
 
-    -- Time box indicator
     local timeBox = New("ImageButton", {
         Size = UDim2.new(0, 40, 0, 20),
         BackgroundColor3 = Color3.new(0, 0, 0),
@@ -456,7 +436,6 @@ function Library:CreateWindow(config)
         AutomaticSize = Enum.AutomaticSize.X
     }, timeBox)
 
-    -- Debug Bar at bottom
     G2L["a1"] = New("Frame", {
         Size = UDim2.new(1, 0, 0, 30),
         Position = UDim2.new(0, 0, 1, 0),
@@ -630,7 +609,6 @@ function Library:CreateWindow(config)
             PaddingRight = UDim.new(0, 12)
         }, innerItem)
 
-        -- Icon Frame
         local iconHolder = New("ImageLabel", {
             Name = "holder",
             Size = UDim2.new(0, 20, 0, 20),
@@ -654,7 +632,6 @@ function Library:CreateWindow(config)
             BackgroundTransparency = 1
         }, iconHolder)
 
-        -- Tab Title Text
         local textLabel = New("TextLabel", {
             Name = "label",
             Text = tabName,
@@ -919,7 +896,6 @@ function Library:CreateWindow(config)
                 }, widgetFrame)
             end
 
-            -- Toggle pill button
             local toggleBtn = New("TextButton", {
                 Size = UDim2.new(0, 36, 0, 18),
                 Position = UDim2.new(1, -12, 0.5, 0),
@@ -1039,7 +1015,6 @@ function Library:CreateWindow(config)
                 TextSize = 14
             }, widgetFrame)
 
-            -- Value Input box
             local valueBox = New("TextBox", {
                 Size = UDim2.new(0, 45, 0, 18),
                 Position = UDim2.new(1, -10, 0, 4),
@@ -1108,7 +1083,6 @@ function Library:CreateWindow(config)
                 end
             end)
 
-            -- Drag calculations
             local dragging = false
             local UserInputService = game:GetService("UserInputService")
             
@@ -1236,7 +1210,7 @@ function Library:CreateWindow(config)
                 TextSize = 14
             }, dropdownFrame)
             
-            -- Closed state pill button
+
             local btn = New("TextButton", {
                 Size = UDim2.new(1, -20, 0, 24),
                 Position = UDim2.new(0, 10, 0, 18),
@@ -1261,7 +1235,7 @@ function Library:CreateWindow(config)
                 TextSize = 12
             }, btn)
             
-            -- Open state items scrolling frame
+
             local list = New("ScrollingFrame", {
                 Name = "list",
                 Position = UDim2.new(0, 10, 0, 48),
@@ -1463,7 +1437,7 @@ function Library:CreateWindow(config)
         -- Saved theme loading
         local savedTheme = defaultTheme
         
-        -- Theme configuration manager
+
         local settingsTab = Window:CreateTab("Settings", true)
         local themeSection = settingsTab:CreateSection("Themes")
         
@@ -1494,3 +1468,4 @@ end
 
     return Library
 end
+

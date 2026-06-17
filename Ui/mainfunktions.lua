@@ -5,7 +5,6 @@ local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local Stats = game:GetService("Stats")
 
--- Core Theme Definitions
 UIFunctions.CurrentAccent = Color3.fromRGB(248, 191, 212)
 UIFunctions.CurrentMain = Color3.fromRGB(36, 36, 36)
 
@@ -31,7 +30,6 @@ UIFunctions.Themes = {
     Synthwave = { Main = Color3.fromRGB(30, 10, 50), Accent = Color3.fromRGB(255, 0, 255) }
 }
 
--- Instance Creator Helper
 function UIFunctions.New(class, props, parent)
     local i = Instance.new(class)
     for k, v in pairs(props) do 
@@ -43,7 +41,6 @@ function UIFunctions.New(class, props, parent)
     return i
 end
 
--- Font Loader
 function UIFunctions.GetFonts()
     return {
         reg = Font.new("rbxassetid://12187365364"),
@@ -89,7 +86,7 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
     local miniLogo = nil
     local resizing, resizeStartPos, resizeStartSize, resizeConn
     
-    -- Dragging States
+
     local drag, dragStart, startPos, windowDragged, windowTargetPos
     local btnDrag, btnDragStart, btnStartPos
     local btnTargetPos = UDim2.new(0, 20, 0.5, -25)
@@ -162,7 +159,6 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
     })
     btnGradient.Parent = btnStroke
 
-    -- Spin thread
     local spinConn
     spinConn = RunService.RenderStepped:Connect(function()
         if not toggleBtn or not toggleBtn.Parent then
@@ -277,12 +273,10 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
         end)
     end
 
-    -- Close Button Connection
     if G2L["72"] then 
         G2L["72"].MouseButton1Click:Connect(closeUI) 
     end
 
-    -- Minimize / Unminimize toggle
     local function toggleMinimize()
         isMinimized = not isMinimized
         local targetSize = isMinimized and UDim2.new(0, 260, 0, 35) or originalSize
@@ -294,13 +288,13 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
         tween:Play()
         
         if isMinimized then
-            -- Hide full contents
+
             G2L["10"].Visible = false
             G2L["65"].Visible = false
             G2L["a1"].Visible = false
             G2L["b"].Visible = false
             
-            -- Clone action buttons to miniature header
+
             miniButtons = G2L["70"]:Clone()
             miniButtons.Name = "MiniButtons"
             miniButtons.Parent = G2L["5"]
@@ -320,7 +314,6 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
                 end
             end
 
-            -- Clone logo to miniature header
             miniLogo = G2L["6c"]:Clone()
             miniLogo.Name = "MiniLogo"
             miniLogo.Parent = G2L["5"]
@@ -337,7 +330,6 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
                 logoText.Visible = true
             end
 
-            -- Wire up miniature controls
             if miniButtons:FindFirstChild("close") then 
                 miniButtons.close.MouseButton1Click:Connect(closeUI) 
             end
@@ -352,7 +344,7 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
                 end)
             end
         else
-            -- Clean up miniature elements and restore original panels
+
             if miniButtons then 
                 miniButtons:Destroy() 
                 miniButtons = nil 
@@ -372,7 +364,6 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
         G2L["94"].MouseButton1Click:Connect(toggleMinimize) 
     end
 
-    -- Resize Handle Dragging
     if G2L["b"] then
         G2L["b"].Size = UDim2.new(0, 30, 0, 30)
         G2L["b"].InputBegan:Connect(function(input)
@@ -446,3 +437,4 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
 end
 
 return UIFunctions
+
