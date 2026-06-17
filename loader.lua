@@ -1,7 +1,7 @@
 local baseUrl = "https://raw.githubusercontent.com/L5ks8/UiLibary/main/Ui/"
 
-local success1, content1 = pcall(game.HttpGet, game, baseUrl .. "mainfunktions.lua")
-local success2, content2 = pcall(game.HttpGet, game, baseUrl .. "mainframe.lua")
+local success1, content1 = pcall(game.HttpGet, game, baseUrl .. "mainfunktions.lua?t=" .. os.time())
+local success2, content2 = pcall(game.HttpGet, game, baseUrl .. "mainframe.lua?t=" .. os.time())
 
 local mainfunktions, mainframe
 if success1 and success2 then

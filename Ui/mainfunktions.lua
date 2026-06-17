@@ -88,10 +88,7 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
     
 
     local drag, dragStart, startPos, windowDragged, windowTargetPos
-    local btnDrag, btnDragStart, btnStartPos
-    local btnTargetPos = UDim2.new(0, 20, 0.5, -25)
     local dragThreshold = 5
-    local movedDuringDrag = false
     
     -- Smooth Scale Toggle Animation
     local isToggling = false
@@ -127,54 +124,6 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
         end
     end
 
-    -- Floating Toggle Button
-    local toggleBtn = Instance.new("ImageButton")
-    toggleBtn.Name = "GoonToggle"
-    toggleBtn.Parent = G2L["1"]
-    toggleBtn.BackgroundColor3 = Color3.fromRGB(36, 36, 36)
-    toggleBtn.BorderSizePixel = 0
-    toggleBtn.Size = UDim2.new(0, 50, 0, 50)
-    toggleBtn.Position = btnTargetPos
-    toggleBtn.Image = "rbxassetid://135630585467568"
-    toggleBtn.ZIndex = 10000
-    toggleBtn.AutoButtonColor = false
-
-    Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 10)
-    
-    -- Spinning Border Stroke
-    local btnStroke = Instance.new("UIStroke")
-    btnStroke.Name = "SelectionStroke"
-    btnStroke.Color = Color3.new(1, 1, 1)
-    btnStroke.Thickness = 1.5
-    btnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    btnStroke.Transparency = 0.5
-    btnStroke.Parent = toggleBtn
-
-    local btnGradient = Instance.new("UIGradient")
-    btnGradient.Transparency = NumberSequence.new({
-        NumberSequenceKeypoint.new(0, 1),
-        NumberSequenceKeypoint.new(0.45, 0),
-        NumberSequenceKeypoint.new(0.55, 0),
-        NumberSequenceKeypoint.new(1, 1)
-    })
-    btnGradient.Parent = btnStroke
-
-    local spinConn
-    spinConn = RunService.RenderStepped:Connect(function()
-        if not toggleBtn or not toggleBtn.Parent then
-            spinConn:Disconnect()
-            return
-        end
-        btnGradient.Rotation = (btnGradient.Rotation + 1) % 360
-    end)
-
-    toggleBtn.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            btnDrag, btnDragStart, btnStartPos = true, input.Position, toggleBtn.Position
-            movedDuringDrag = false
-        end
-    end)
-
     UserInputService.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement then
             if drag and not resizing then
@@ -185,23 +134,13 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
                 if windowDragged then
                     windowTargetPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
                 end
-            elseif btnDrag then
-                local delta = input.Position - btnDragStart
-                if delta.Magnitude > dragThreshold then
-                    movedDuringDrag = true
-                end
-                btnTargetPos = UDim2.new(btnStartPos.X.Scale, btnStartPos.X.Offset + delta.X, btnStartPos.Y.Scale, btnStartPos.Y.Offset + delta.Y)
             end
         end
     end)
 
     UserInputService.InputEnded:Connect(function(input) 
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            if btnDrag and not movedDuringDrag then
-                animateToggle()
-            end
             drag, windowDragged = false, false
-            btnDrag = false
         end
     end)
 
@@ -215,7 +154,6 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
         if drag and windowTargetPos then
             G2L["2"].Position = G2L["2"].Position:Lerp(windowTargetPos, 0.12)
         end
-        toggleBtn.Position = toggleBtn.Position:Lerp(btnTargetPos, 0.12)
     end)
 
     -- Keybind Toggle (RightControl)
@@ -437,4 +375,5 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
 end
 
 return UIFunctions
+
 
