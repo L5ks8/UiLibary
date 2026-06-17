@@ -884,10 +884,34 @@ function Library:CreateWindow(config)
                 local dropped = true
                 toggleBtn.MouseButton1Click:Connect(function()
                     dropped = not dropped
-                    container.Visible = dropped
-                    TweenService:Create(arrow, TweenInfo.new(0.25, Enum.EasingStyle.Quart), {
-                        Rotation = dropped and 0 or -90
-                    }):Play()
+                    if not dropped then
+                        local currentHeight = container.AbsoluteSize.Y
+                        container.AutomaticSize = Enum.AutomaticSize.None
+                        container.Size = UDim2.new(1, -20, 0, currentHeight)
+                        
+                        local tween = TweenService:Create(container, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                            Size = UDim2.new(1, -20, 0, 0)
+                        })
+                        tween:Play()
+                        
+                        TweenService:Create(arrow, TweenInfo.new(0.25, Enum.EasingStyle.Quart), {
+                            Rotation = -90
+                        }):Play()
+                        
+                        tween.Completed:Connect(function()
+                            if not dropped then
+                                container.Visible = false
+                            end
+                        end)
+                    else
+                        container.Visible = true
+                        container.Size = UDim2.new(1, -20, 0, 0)
+                        container.AutomaticSize = Enum.AutomaticSize.Y
+                        
+                        TweenService:Create(arrow, TweenInfo.new(0.1, Enum.EasingStyle.Quart), {
+                            Rotation = 0
+                        }):Play()
+                    end
                 end)
             end
 
