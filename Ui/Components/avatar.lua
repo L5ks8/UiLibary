@@ -53,13 +53,6 @@ return function(Tab, mainfunctions, configTitle, overrideParent, layoutOrder)
         ZIndex = 2
     }, widgetFrame)
 
-    -- Viewport Outline
-    local vpStroke = New("UIStroke", {
-        Color = mainfunctions.CurrentAccent,
-        Thickness = 1.5,
-        Transparency = 0.4
-    }, viewportFrame)
-
     local camera = Instance.new("Camera")
     camera.FieldOfView = 50
     viewportFrame.CurrentCamera = camera

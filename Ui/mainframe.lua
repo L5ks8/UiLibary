@@ -904,6 +904,16 @@ function Library:CreateWindow(config)
                 return Tab:CreateAvatar(t, container, self.WidgetCount)
             end
 
+            function Section:CreateInput(t, d, cb)
+                self.WidgetCount = self.WidgetCount + 1
+                return Tab:CreateInput(t, d, cb, container, self.WidgetCount)
+            end
+
+            function Section:CreateKeybind(t, d, cb)
+                self.WidgetCount = self.WidgetCount + 1
+                return Tab:CreateKeybind(t, d, cb, container, self.WidgetCount)
+            end
+
             return Section
         end
 
@@ -934,6 +944,14 @@ function Library:CreateWindow(config)
 
         function Tab:CreateAvatar(configTitle, overrideParent, layoutOrder)
             return components.avatar(self, mainfunctions, configTitle, overrideParent, layoutOrder)
+        end
+
+        function Tab:CreateInput(configTitle, defaultKey, callback, overrideParent, layoutOrder)
+            return components.input(self, mainfunctions, configTitle, defaultKey, callback, overrideParent, layoutOrder)
+        end
+
+        function Tab:CreateKeybind(configTitle, defaultKey, callback, overrideParent, layoutOrder)
+            return components.input(self, mainfunctions, configTitle, defaultKey, callback, overrideParent, layoutOrder)
         end
 
         return Tab
