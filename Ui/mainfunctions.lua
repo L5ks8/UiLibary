@@ -627,7 +627,7 @@ end
                         Size = UDim2.new(0, 16, 0, 16),
                         Position = UDim2.new(0, 8, 0.5, 0),
                         AnchorPoint = Vector2.new(0, 0.5),
-                        Image = "rbxassetid://111214789510168",
+                        Image = "rbxassetid://112780490255100",
                         ImageColor3 = Color3.fromRGB(180, 180, 180),
                         BackgroundTransparency = 1,
                         ZIndex = 11
