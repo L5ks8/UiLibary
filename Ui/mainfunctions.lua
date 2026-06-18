@@ -618,7 +618,7 @@ end
                         Transparency = 0.5
                     }, searchBox)
                     New("UIPadding", {
-                        PaddingLeft = UDim.new(0, 28),
+                        PaddingLeft = UDim.new(0, 30),
                         PaddingRight = UDim.new(0, 10)
                     }, searchBox)
 
