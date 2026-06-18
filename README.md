@@ -6,7 +6,7 @@ local Window = Library:CreateWindow({
     Title = "Test UI",                                                  -- Name the Ui
     Version = "1.0.0",                                                  -- Version of the Ui
     Theme = "Dark",                                                     -- Set a Theme you defined you dont need to standart is dark
-    Logo = "<font color=\"rgb(0, 170, 255)\">Test</font>UI",          -- Add the name of the Logo it supports multi colour Names
+    Logo = "<font color=\"rgb(0, 170, 255)\">Test</font>UI",            -- Add the name of the Logo it supports multi colour Names
     SecondaryLogo = "| UI Example",                                     -- The secondary Logo it can be the game name o annything
 
     -- Custom themes
