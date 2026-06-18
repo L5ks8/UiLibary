@@ -625,13 +625,13 @@ end
                     New("ImageLabel", {
                         Name = "Icon",
                         Size = UDim2.new(0, 16, 0, 16),
-                        Position = UDim2.new(0, 8, 0.5, 0),
-                        AnchorPoint = Vector2.new(0, 0.5),
+                        Position = UDim2.new(0, 8, 0, 50),
+                        AnchorPoint = Vector2.new(0, 0),
                         Image = "rbxassetid://112780490255100",
                         ImageColor3 = Color3.fromRGB(180, 180, 180),
                         BackgroundTransparency = 1,
                         ZIndex = 11,
-                    }, searchBox)
+                    }, tabContentFrame)
 
                     searchBox:GetPropertyChangedSignal("Text"):Connect(function()
                         local query = searchBox.Text:lower()
