@@ -59,13 +59,13 @@ return function(Tab, mainfunctions, configTitle, overrideParent, layoutOrder)
     camera.Parent = viewportFrame
 
     local charClone
-    local yaw = 180    -- Horizontal rotation angle (degrees) - starts facing the camera
-    local pitch = 0    -- Vertical rotation angle (degrees)
-    local distance = 8.0 -- Camera distance (zoomed out slightly to fit feet)
+    local yaw = 180
+    local pitch = 0 
+    local distance = 8.0 
 
     local function updateCamera()
         if not camera then return end
-        local center = Vector3.new(0, 0.1, 0) -- Look at character center
+        local center = Vector3.new(0, 0.1, 0)
         local rotationCFrame = CFrame.Angles(0, math.rad(yaw), 0) * CFrame.Angles(math.rad(pitch), 0, 0)
         camera.CFrame = CFrame.new(center) * rotationCFrame * CFrame.new(0, 0, distance)
         camera.Focus = CFrame.new(center)
@@ -81,7 +81,7 @@ return function(Tab, mainfunctions, configTitle, overrideParent, layoutOrder)
         charClone = originalChar:Clone()
         originalChar.Archivable = wasArchivable
 
-        -- Clean up non-visual scripts / sounds
+        -- Clean up non-visual scripts
         for _, child in ipairs(charClone:GetDescendants()) do
             if child:IsA("LuaSourceContainer") or child:IsA("Sound") or child:IsA("ForceField") then
                 child:Destroy()
@@ -106,15 +106,13 @@ return function(Tab, mainfunctions, configTitle, overrideParent, layoutOrder)
         updateCamera()
     end)
 
-    -- Listen for player respawns to update the character model
     local charAddedConn
     charAddedConn = localPlayer.CharacterAdded:Connect(function()
-        task.wait(0.5) -- Wait briefly for parts/accessories to instantiate
+        task.wait(0.5)
         setupCharacter()
         updateCamera()
     end)
 
-    -- Drag to Rotate Logic
     local dragging = false
     local lastMousePos
 

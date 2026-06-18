@@ -5,7 +5,7 @@ local success1, content1 = pcall(game.HttpGet, game, baseUrl .. "mainfunctions.l
 local success2, content2 = pcall(game.HttpGet, game, baseUrl .. "mainframe.lua?t=" .. os.time())
 
 if not (success1 and success2) then
-    error("GoonHub Loader: Failed to load files from GitHub.")
+    error("UiLibary Loader: Failed to load files from GitHub.")
 end
 
 local mainfunctions = loadstring(content1)()
@@ -19,12 +19,12 @@ for _, name in ipairs(componentNames) do
     if success then
         components[name] = loadstring(content)()
     else
-        error("GoonHub Loader: Failed to load component '" .. name .. "' from GitHub.")
+        error("UiLibary Loader: Failed to load component '" .. name .. "' from GitHub.")
     end
 end
 
 if mainframe and mainfunctions then
     return mainframe(mainfunctions, components)
 else
-    error("GoonHub Loader: Failed to compile mainframe or mainfunctions.")
+    error("UiLibary Loader: Failed to compile mainframe or mainfunctions.")
 end
