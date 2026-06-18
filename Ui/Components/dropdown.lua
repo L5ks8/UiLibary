@@ -59,12 +59,12 @@ return function(Tab, mainfunctions, configTitle, configOptions, callback, overri
     New("UICorner", {CornerRadius = UDim.new(0, 4)}, btn)
 
     local arrow = New("TextLabel", {
-        Size = UDim2.new(0, 20, 0, 20),
+        Size = UDim2.new(0, 20, 0, 32),
         Position = UDim2.new(1, -25, 0.5, 0),
-        AnchorPoint = Vector2.new(0, 0.5),
-        Text = "▶",
+        AnchorPoint = Vector2.new(1, 0.5),
+        Text = "▼",
         BackgroundTransparency = 1,
-        TextColor3 = Color3.new(1, 1, 1),
+        TextColor3 = Color3.fromRGB(150, 150, 150),
         TextSize = 12,
         Rotation = 0
     }, btn)
