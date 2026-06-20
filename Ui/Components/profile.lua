@@ -574,7 +574,7 @@ return function(mainfunctions)
         rootJoint.Part0 = rootPart
 
         -- Set camera to look at the rig
-        camera.CFrame = CFrame.new(Vector3.new(0, 1, 2.5), Vector3.new(0, 1, -5.5))
+        camera.CFrame = CFrame.lookAt(Vector3.new(0, 1.2, -3.5), Vector3.new(0, 1.2, -5.5))
 
         -- Apply player appearance
         local playerChar = LocalPlayer.Character
@@ -582,17 +582,17 @@ return function(mainfunctions)
             local playerHum = playerChar:FindFirstChildOfClass("Humanoid")
             if playerHum then
                 local pDesc = playerHum:GetAppliedDescription()
-                if shirt then shirt.ShirtTemplate = pDesc.Shirt end
-                if pants then pants.PantsTemplate = pDesc.Pants end
+                if shirt and pDesc.Shirt > 0 then shirt.ShirtTemplate = "rbxassetid://" .. pDesc.Shirt end
+                if pants and pDesc.Pants > 0 then pants.PantsTemplate = "rbxassetid://" .. pDesc.Pants end
                 if head then head.Color = pDesc.HeadColor end
                 if torso then torso.Color = pDesc.TorsoColor end
                 if leftArm then leftArm.Color = pDesc.LeftArmColor end
                 if rightArm then rightArm.Color = pDesc.RightArmColor end
                 if leftLeg then leftLeg.Color = pDesc.LeftLegColor end
                 if rightLeg then rightLeg.Color = pDesc.RightLegColor end
-                if faceDecal then
-                    faceDecal.Texture = pDesc.Face
-                    faceDecal.ColorMap = pDesc.Face
+                if faceDecal and pDesc.Face > 0 then
+                    faceDecal.Texture = "rbxassetid://" .. pDesc.Face
+                    faceDecal.ColorMap = "rbxassetid://" .. pDesc.Face
                 end
             end
         end
@@ -602,6 +602,42 @@ return function(mainfunctions)
 
     local avatarModel = buildRig()
     avatarModel.Parent = viewport
+
+    -- Re-apply appearance when character respawns
+    LocalPlayer.CharacterAdded:Connect(function()
+        task.wait(0.5)
+        local char = LocalPlayer.Character
+        if not char then return end
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if not hum then return end
+        local pDesc = hum:GetAppliedDescription()
+        local rigModel = viewport:FindFirstChildOfClass("WorldModel")
+        if not rigModel then return end
+        local rig = rigModel:FindFirstChild("Rig")
+        if not rig then return end
+        local shirtInst = rig:FindFirstChildOfClass("Shirt")
+        local pantsInst = rig:FindFirstChildOfClass("Pants")
+        if shirtInst and pDesc.Shirt > 0 then shirtInst.ShirtTemplate = "rbxassetid://" .. pDesc.Shirt end
+        if pantsInst and pDesc.Pants > 0 then pantsInst.PantsTemplate = "rbxassetid://" .. pDesc.Pants end
+        local function setPartColor(name, color)
+            local part = rig:FindFirstChild(name)
+            if part and part:IsA("BasePart") then part.Color = color end
+        end
+        setPartColor("Head", pDesc.HeadColor)
+        setPartColor("Torso", pDesc.TorsoColor)
+        setPartColor("Left Arm", pDesc.LeftArmColor)
+        setPartColor("Right Arm", pDesc.RightArmColor)
+        setPartColor("Left Leg", pDesc.LeftLegColor)
+        setPartColor("Right Leg", pDesc.RightLegColor)
+        local headPart = rig:FindFirstChild("Head")
+        if headPart then
+            local decal = headPart:FindFirstChild("face")
+            if decal and decal:IsA("Decal") and pDesc.Face > 0 then
+                decal.Texture = "rbxassetid://" .. pDesc.Face
+                decal.ColorMap = "rbxassetid://" .. pDesc.Face
+            end
+        end
+    end)
 
     New("UICorner", {Name = "corner", CornerRadius = UDim.new(0.1, 0)}, viewport)
 
