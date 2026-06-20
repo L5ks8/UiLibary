@@ -448,22 +448,25 @@ function Library:CreateWindow(config)
         AutomaticSize = Enum.AutomaticSize.X
     }, timeBox)
 
-    -- Profile Avatar Button (oben rechts bei der Uhrzeit)
+    -- Profile Button (unten links unter timeBox)
     local profileGui = nil
     
-    local profileAvatarBtn = New("ImageButton", {
-        Size = UDim2.new(0, 26, 0, 26),
-        BackgroundColor3 = Color3.fromRGB(27, 27, 27),
-        BackgroundTransparency = 0,
-        Image = "rbxthumb://type=AvatarHeadShot&id=" .. userId .. "&w=150&h=150",
-        Name = "profile_avatar",
+    local profileBtn = New("TextButton", {
+        Size = UDim2.new(0, 80, 0, 20),
+        BackgroundColor3 = Color3.new(0, 0, 0),
+        BackgroundTransparency = 0.8,
+        Text = "Profile",
+        TextColor3 = Color3.new(1, 1, 1),
+        TextSize = 12,
+        FontFace = fonts.reg,
         AutoButtonColor = false,
+        Name = "profile_btn",
         LayoutOrder = 2
-    }, G2L["6e"])
+    }, G2L["38"])
     
-    New("UICorner", {CornerRadius = UDim.new(1, 0)}, profileAvatarBtn)
+    New("UICorner", {CornerRadius = UDim.new(0, 4)}, profileBtn)
     
-    profileAvatarBtn.MouseButton1Click:Connect(function()
+    profileBtn.MouseButton1Click:Connect(function()
         if profileGui then
             profileGui:Destroy()
             profileGui = nil
