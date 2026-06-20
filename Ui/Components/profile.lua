@@ -586,20 +586,35 @@ return function(mainfunctions)
         -- Apply player appearance
         local playerChar = LocalPlayer.Character
         if playerChar then
-            local playerHum = playerChar:FindFirstChildOfClass("Humanoid")
-            if playerHum then
-                local pDesc = playerHum:GetAppliedDescription()
-                if shirt and pDesc.Shirt > 0 then shirt.ShirtTemplate = "rbxassetid://" .. pDesc.Shirt end
-                if pants and pDesc.Pants > 0 then pants.PantsTemplate = "rbxassetid://" .. pDesc.Pants end
-                if head then head.Color = pDesc.HeadColor end
-                if torso then torso.Color = pDesc.TorsoColor end
-                if leftArm then leftArm.Color = pDesc.LeftArmColor end
-                if rightArm then rightArm.Color = pDesc.RightArmColor end
-                if leftLeg then leftLeg.Color = pDesc.LeftLegColor end
-                if rightLeg then rightLeg.Color = pDesc.RightLegColor end
-                if faceDecal and pDesc.Face > 0 then
-                    faceDecal.Texture = "rbxassetid://" .. pDesc.Face
-                    faceDecal.ColorMap = "rbxassetid://" .. pDesc.Face
+            -- Shirt & Pants
+            local charShirt = playerChar:FindFirstChildOfClass("Shirt")
+            if charShirt and shirt then
+                shirt.ShirtTemplate = charShirt.ShirtTemplate
+            end
+            local charPants = playerChar:FindFirstChildOfClass("Pants")
+            if charPants and pants then
+                pants.PantsTemplate = charPants.PantsTemplate
+            end
+            -- Body part colors
+            local function copyColor(rigPart, charName)
+                local charPart = playerChar:FindFirstChild(charName)
+                if charPart and charPart:IsA("BasePart") and rigPart then
+                    rigPart.Color = charPart.Color
+                end
+            end
+            copyColor(head, "Head")
+            copyColor(torso, "Torso")
+            copyColor(leftArm, "Left Arm")
+            copyColor(rightArm, "Right Arm")
+            copyColor(leftLeg, "Left Leg")
+            copyColor(rightLeg, "Right Leg")
+            -- Face decal
+            local charHead = playerChar:FindFirstChild("Head")
+            if charHead and faceDecal then
+                local charDecal = charHead:FindFirstChild("face")
+                if charDecal and charDecal:IsA("Decal") then
+                    faceDecal.Texture = charDecal.Texture
+                    faceDecal.ColorMap = charDecal.ColorMap
                 end
             end
         end
@@ -615,33 +630,46 @@ return function(mainfunctions)
         task.wait(0.5)
         local char = LocalPlayer.Character
         if not char then return end
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if not hum then return end
-        local pDesc = hum:GetAppliedDescription()
         local rigModel = viewport:FindFirstChildOfClass("WorldModel")
         if not rigModel then return end
         local rig = rigModel:FindFirstChild("Rig")
         if not rig then return end
+        -- Shirt & Pants
+        local charShirt = char:FindFirstChildOfClass("Shirt")
         local shirtInst = rig:FindFirstChildOfClass("Shirt")
-        local pantsInst = rig:FindFirstChildOfClass("Pants")
-        if shirtInst and pDesc.Shirt > 0 then shirtInst.ShirtTemplate = "rbxassetid://" .. pDesc.Shirt end
-        if pantsInst and pDesc.Pants > 0 then pantsInst.PantsTemplate = "rbxassetid://" .. pDesc.Pants end
-        local function setPartColor(name, color)
-            local part = rig:FindFirstChild(name)
-            if part and part:IsA("BasePart") then part.Color = color end
+        if charShirt and shirtInst then
+            shirtInst.ShirtTemplate = charShirt.ShirtTemplate
         end
-        setPartColor("Head", pDesc.HeadColor)
-        setPartColor("Torso", pDesc.TorsoColor)
-        setPartColor("Left Arm", pDesc.LeftArmColor)
-        setPartColor("Right Arm", pDesc.RightArmColor)
-        setPartColor("Left Leg", pDesc.LeftLegColor)
-        setPartColor("Right Leg", pDesc.RightLegColor)
-        local headPart = rig:FindFirstChild("Head")
-        if headPart then
-            local decal = headPart:FindFirstChild("face")
-            if decal and decal:IsA("Decal") and pDesc.Face > 0 then
-                decal.Texture = "rbxassetid://" .. pDesc.Face
-                decal.ColorMap = "rbxassetid://" .. pDesc.Face
+        local charPants = char:FindFirstChildOfClass("Pants")
+        local pantsInst = rig:FindFirstChildOfClass("Pants")
+        if charPants and pantsInst then
+            pantsInst.PantsTemplate = charPants.PantsTemplate
+        end
+        -- Body part colors
+        local function setPartColor(name)
+            local charPart = char:FindFirstChild(name)
+            local rigPart = rig:FindFirstChild(name)
+            if charPart and charPart:IsA("BasePart") and rigPart and rigPart:IsA("BasePart") then
+                rigPart.Color = charPart.Color
+            end
+        end
+        setPartColor("Head")
+        setPartColor("Torso")
+        setPartColor("Left Arm")
+        setPartColor("Right Arm")
+        setPartColor("Left Leg")
+        setPartColor("Right Leg")
+        -- Face decal
+        local charHead = char:FindFirstChild("Head")
+        if charHead then
+            local charDecal = charHead:FindFirstChild("face")
+            local rigHead = rig:FindFirstChild("Head")
+            if rigHead then
+                local rigDecal = rigHead:FindFirstChild("face")
+                if charDecal and charDecal:IsA("Decal") and rigDecal and rigDecal:IsA("Decal") then
+                    rigDecal.Texture = charDecal.Texture
+                    rigDecal.ColorMap = charDecal.ColorMap
+                end
             end
         end
     end)
