@@ -545,6 +545,7 @@ function Library:CreateWindow(config)
 
     New("UIFlexItem", {Name = "flex", FlexMode = Enum.UIFlexMode.Fill}, errValue)
     New("UITextSizeConstraint", {Name = "size", MaxTextSize = 13}, errValue)
+    G2L["err_value"] = errValue
 
     -- Warnings
     local debugWarnings = New("Frame", {
@@ -600,6 +601,7 @@ function Library:CreateWindow(config)
 
     New("UIFlexItem", {Name = "flex", FlexMode = Enum.UIFlexMode.Fill}, warnValue)
     New("UITextSizeConstraint", {Name = "size", MaxTextSize = 13}, warnValue)
+    G2L["warn_value"] = warnValue
 
     -- Memory
     local debugMemory = New("Frame", {

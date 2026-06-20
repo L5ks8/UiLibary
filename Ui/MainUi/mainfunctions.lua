@@ -169,20 +169,17 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
 
             if not onInteractive then
                 local parent = G2L["1"].Parent
-                if parent then
-                    for _, child in ipairs(parent:GetChildren()) do
-                        if child:IsA("ScreenGui") and child ~= G2L["1"] and child.Enabled then
-                            local otherObjs = child:GetGuiObjectsAtPosition(pos.X, pos.Y)
-                            for _, o in ipairs(otherObjs) do
-                                if o:IsA("TextButton") or o:IsA("ImageButton") or o:IsA("TextBox") then
-                                    onInteractive = true
-                                    break
-                                end
-                            end
+            if parent then
+                for _, child in ipairs(parent:GetChildren()) do
+                    if child:IsA("ScreenGui") and child ~= G2L["1"] and child.Enabled then
+                        local otherObjs = child:GetGuiObjectsAtPosition(pos.X, pos.Y)
+                        if #otherObjs > 0 then
+                            onInteractive = true
+                            break
                         end
-                        if onInteractive then break end
                     end
                 end
+            end
             end
 
             if onInteractive or gpe then return end
@@ -410,6 +407,17 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
     end)
 
     -- Stats Updater Loop (Runs once per second)
+    local LogService = game:GetService("LogService")
+    LogService.MessageOut:Connect(function(message, messageType)
+        if messageType == Enum.MessageType.MessageError then
+            local count = (G2L["1"]:GetAttribute("errCount") or 0) + 1
+            G2L["1"]:SetAttribute("errCount", count)
+        elseif messageType == Enum.MessageType.MessageWarning then
+            local count = (G2L["1"]:GetAttribute("warnCount") or 0) + 1
+            G2L["1"]:SetAttribute("warnCount", count)
+        end
+    end)
+
     task.spawn(function()
         while task.wait(1) do
             if not G2L["1"] or not G2L["1"].Parent then 
@@ -429,6 +437,12 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
                 end
                 if G2L["time_text"] then
                     G2L["time_text"].Text = os.date("%I:%M %p")
+                end
+                if G2L["err_value"] then
+                    G2L["err_value"].Text = tostring(G2L["1"]:GetAttribute("errCount") or 0)
+                end
+                if G2L["warn_value"] then
+                    G2L["warn_value"].Text = tostring(G2L["1"]:GetAttribute("warnCount") or 0)
                 end
             end)
         end
