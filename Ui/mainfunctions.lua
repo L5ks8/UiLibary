@@ -145,9 +145,9 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
         end
     end)
 
-    -- Keybind Toggle (RightControl)
+    -- Keybind Toggle (Customizable, defaults to RightControl)
     UserInputService.InputBegan:Connect(function(input, gpe)
-        if not gpe and input.KeyCode == Enum.KeyCode.RightControl then
+        if not gpe and input.KeyCode == (UIFunctions.ToggleKey or Enum.KeyCode.RightControl) then
             animateToggle()
             return
         end
