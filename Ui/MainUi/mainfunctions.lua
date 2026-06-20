@@ -30,32 +30,22 @@ function UIFunctions.GetFonts()
     }
 end
 
-function UIFunctions.ShowProfile(profileCreator)
-    if type(profileCreator) ~= "function" then
+function UIFunctions.ToggleProfile(profileBuilder)
+    if not profileBuilder then
         return
     end
 
-    local CoreGui = game:GetService("CoreGui")
-    local existing = CoreGui:FindFirstChild("OrbitProfile")
-    if existing then
-        existing:Destroy()
-    end
-
-    local profileGui = profileCreator(UIFunctions)
-    if not profileGui or not profileGui:IsA("ScreenGui") then
+    if UIFunctions.ProfileGui and UIFunctions.ProfileGui.Parent then
+        UIFunctions.ProfileGui:Destroy()
+        UIFunctions.ProfileGui = nil
         return
     end
 
-    local closeButton = profileGui:FindFirstChild("close", true)
-    if closeButton and closeButton:IsA("ImageButton") then
-        closeButton.MouseButton1Click:Connect(function()
-            if profileGui and profileGui.Parent then
-                profileGui:Destroy()
-            end
-        end)
+    local screenGui = profileBuilder(UIFunctions)
+    if screenGui and screenGui:IsA("ScreenGui") then
+        UIFunctions.ProfileGui = screenGui
     end
-
-    return profileGui
+    return screenGui
 end
 
 -- Theme Switcher with Smooth Tweens

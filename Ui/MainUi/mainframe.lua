@@ -26,14 +26,8 @@ function Library:CreateWindow(config)
 
     local New = mainfunctions.New
     local fonts = mainfunctions.GetFonts()
+    local profileModule = components.profile
     local G2L = {}
-    local openProfileUI
-
-    openProfileUI = function()
-        if components and type(components.profile) == "function" then
-            mainfunctions.ShowProfile(components.profile)
-        end
-    end
 
     -- Resolve Local Player safely
     local Players = game:GetService("Players")
@@ -45,17 +39,17 @@ function Library:CreateWindow(config)
     -- Find parent container
     local targetParent = (gethui and gethui()) or game:GetService("CoreGui") or (LocalPlayer and LocalPlayer:WaitForChild("PlayerGui"))
     if not targetParent then
-        error("Orbit Ui: Could not locate a valid GUI parent container.")
+        error("UiLibary: Could not locate a valid GUI parent container.")
     end
 
     -- Destroy old instance if exists
-    if targetParent:FindFirstChild("OrbitUi") then 
-        targetParent["OrbitUi"]:Destroy() 
+    if targetParent:FindFirstChild("UiLibary") then 
+        targetParent["UiLibary"]:Destroy() 
     end
 
     G2L["1"] = New("ScreenGui", {
         IgnoreGuiInset = true,
-        Name = "OrbitUi",
+        Name = "UiLibary",
         ResetOnSpawn = false,
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     }, targetParent)
@@ -363,6 +357,12 @@ function Library:CreateWindow(config)
 
     New("UICorner", {CornerRadius = UDim.new(0, 15)}, G2L["38"])
 
+    if profileModule then
+        G2L["38"].MouseButton1Click:Connect(function()
+            mainfunctions.ToggleProfile(profileModule)
+        end)
+    end
+
     New("UIListLayout", {
         FillDirection = Enum.FillDirection.Horizontal,
         VerticalAlignment = Enum.VerticalAlignment.Center,
@@ -374,12 +374,6 @@ function Library:CreateWindow(config)
         PaddingLeft = UDim.new(0, 10),
         PaddingRight = UDim.new(0, 35)
     }, G2L["38"])
-
-    if G2L["38"] then
-        G2L["38"].MouseButton1Click:Connect(function()
-            openProfileUI()
-        end)
-    end
 
     local avatarFrame = New("Frame", {
         Size = UDim2.new(0, 26, 0, 26),
