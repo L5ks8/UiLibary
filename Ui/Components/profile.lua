@@ -603,21 +603,6 @@ return function(mainfunctions)
         return btn
     end
 
-    -- Humanoid category
-    local humanoidCat = createCategory("humanoid", 4)
-    humanoidCat.Visible = true
-
-    createButtonRow(humanoidCat, "health", "11419717444", 1, function()
-        local char = LocalPlayer.Character
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid.Health = 0
-        end
-    end)
-
-    createButtonRow(humanoidCat, "speed", "12975608939", 2)
-
-    createButtonRow(humanoidCat, "jump", "11432834725", 3)
-
     -- Character category
     local characterCat = createCategory("character", 5)
     characterCat.Visible = true
@@ -646,28 +631,9 @@ return function(mainfunctions)
         end
     end)
 
-    -- Advanced category
+    -- Advanced category (no buttons)
     local advancedCat = createCategory("advanced", 6)
     advancedCat.Visible = true
-
-    local advContent = New("Frame", {
-        BorderSizePixel = 0,
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        AutomaticSize = Enum.AutomaticSize.Y,
-        Size = UDim2.new(1, 0, 0, 0),
-        BorderColor3 = Color3.fromRGB(0, 0, 0),
-        Name = "content",
-        LayoutOrder = 1,
-        BackgroundTransparency = 1
-    }, advancedCat)
-
-    New("UIGridLayout", {
-        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-        CellSize = UDim2.new(0.5, -3, 0, 40),
-        SortOrder = Enum.SortOrder.LayoutOrder,
-        CellPadding = UDim2.new(0, 6, 0, 6)
-    }, advContent)
-
 
 
     -- Loading done
