@@ -1007,7 +1007,7 @@ end
                 end
 
                 function Tab:CreateKeybind(configTitle, defaultKey, callback, overrideParent, layoutOrder)
-                    return components.input(self, UIFunctions, configTitle, defaultKey, callback, overrideParent, layoutOrder)
+                    return components.uikeybind(self, UIFunctions, configTitle, defaultKey, callback, overrideParent, layoutOrder)
                 end
 
                 return Tab
