@@ -371,6 +371,48 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
             end 
         end)
     end
+    -- Resolve Region
+    local countryCode = "N/A"
+    task.spawn(function()
+        pcall(function()
+            countryCode = game:GetService("LocalizationService"):GetCountryRegionForPlayerAsync(game:GetService("Players").LocalPlayer)
+        end)
+    end)
+
+    -- Resolve Warnings and Errors
+    local LogService = game:GetService("LogService")
+    local errorCount = 0
+    local warningCount = 0
+    
+    pcall(function()
+        local history = LogService:GetLogHistory()
+        for _, log in ipairs(history) do
+            if log.messageType == Enum.MessageType.MessageError then
+                errorCount = errorCount + 1
+            elseif log.messageType == Enum.MessageType.MessageWarning then
+                warningCount = warningCount + 1
+            end
+        end
+    end)
+    
+    local logConn
+    logConn = LogService.MessageOut:Connect(function(message, messageType)
+        if not G2L["1"] or not G2L["1"].Parent then
+            logConn:Disconnect()
+            return
+        end
+        if messageType == Enum.MessageType.MessageError then
+            errorCount = errorCount + 1
+            if G2L["error_val"] then
+                G2L["error_val"].Text = tostring(errorCount)
+            end
+        elseif messageType == Enum.MessageType.MessageWarning then
+            warningCount = warningCount + 1
+            if G2L["warn_val"] then
+                G2L["warn_val"].Text = tostring(warningCount)
+            end
+        end
+    end)
 
     -- Calculate FPS precisely using RenderStepped
     local lastTime = os.clock()
@@ -400,7 +442,7 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
             
             pcall(function()
                 if G2L["fps_label"] then
-                    G2L["fps_label"].Text = "FPS: " .. currentFps
+                    G2L["fps_label"].Text = "FPS: " .. currentFps .. ".0/s"
                 end
                 if G2L["ping_label"] then
                     local ping = math.floor(Stats:FindFirstChild("PerformanceStats") and Stats.PerformanceStats.Ping:GetValue() or 0)
@@ -411,6 +453,15 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
                 end
                 if G2L["time_text"] then
                     G2L["time_text"].Text = os.date("%I:%M %p")
+                end
+                if G2L["region_label"] then
+                    G2L["region_label"].Text = "Region: " .. countryCode
+                end
+                if G2L["error_val"] then
+                    G2L["error_val"].Text = tostring(errorCount)
+                end
+                if G2L["warn_val"] then
+                    G2L["warn_val"].Text = tostring(warningCount)
                 end
             end)
         end
