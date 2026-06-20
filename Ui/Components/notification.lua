@@ -65,15 +65,15 @@ return function(mainfunctions)
             ImageTransparency = 1,
             BackgroundTransparency = 1,
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-            Size = UDim2.new(1, 0, 0, 0), -- Start height at 0
-            AutomaticSize = Enum.AutomaticSize.None, -- Disable initially for tweening
+            Size = UDim2.new(1, 0, 0, 0),
+            AutomaticSize = Enum.AutomaticSize.Y, -- Enable automatic height
             ClipsDescendants = true
         })
         
-        New("UIPadding", {
+        local btnPadding = New("UIPadding", {
             Name = "Padding",
-            PaddingTop = UDim.new(0, 5),
-            PaddingBottom = UDim.new(0, 5)
+            PaddingTop = UDim.new(0, 0),
+            PaddingBottom = UDim.new(0, 0)
         }, notificationBtn)
         
         local banner = New("CanvasGroup", {
@@ -81,9 +81,9 @@ return function(mainfunctions)
             BorderSizePixel = 0,
             BackgroundColor3 = Color3.fromRGB(37, 37, 37),
             AutomaticSize = Enum.AutomaticSize.XY,
-            GroupTransparency = 1, -- Start transparent for fade-in
+            GroupTransparency = 0.5, -- Start at 0.5 as in user's script
             AnchorPoint = Vector2.new(0.5, 1), -- Align to bottom of the button
-            Position = UDim2.new(0.5, 0, 1, 0) -- Centered horizontally, bottom vertically
+            Position = UDim2.new(0.5, 0, 0, -5) -- Centered horizontally, offset Y by -5
         }, notificationBtn)
         
         New("UICorner", {
@@ -241,69 +241,68 @@ return function(mainfunctions)
         }, banner)
         
         notificationBtn.Parent = container
+        notificationBtn.Visible = true
         
-        -- Yield brief moment to allow layout generation to compute target size
-        task.wait()
+        -- Hover State Handling
+        local Hovering = false
+        local clickConn, enterConn, leaveConn
         
-        local targetHeight = banner.AbsoluteSize.Y + 10 -- Height of banner plus top/bottom padding
-        
-        -- Tween the height and fade in the banner
-        local slideInTween = TweenService:Create(notificationBtn, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            Size = UDim2.new(1, 0, 0, targetHeight)
-        })
-        local fadeInTween = TweenService:Create(banner, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            GroupTransparency = 0
-        })
-        
-        slideInTween:Play()
-        fadeInTween:Play()
-        
-        slideInTween.Completed:Connect(function()
-            -- Re-enable automatic height to adapt to potential dynamic contents
-            notificationBtn.AutomaticSize = Enum.AutomaticSize.Y
+        enterConn = notificationBtn.MouseEnter:Connect(function()
+            Hovering = true
         end)
         
-        -- Cleanup animation helper
+        leaveConn = notificationBtn.MouseLeave:Connect(function()
+            Hovering = false
+        end)
+        
+        -- Animations setup (using same properties as user's module)
+        local smoothInfo = TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+        
+        TweenService:Create(banner, smoothInfo, {
+            AnchorPoint = Vector2.new(0.5, 0),
+            Position = UDim2.new(0.5, 0, 0, 0),
+            GroupTransparency = 0
+        }):Play()
+        
+        TweenService:Create(btnPadding, smoothInfo, {
+            PaddingTop = UDim.new(0, 5),
+            PaddingBottom = UDim.new(0, 5)
+        }):Play()
+        
         local isClosing = false
         local function closeNotification()
             if isClosing then return end
             isClosing = true
             
-            -- Turn off automatic size to shrink height
-            notificationBtn.AutomaticSize = Enum.AutomaticSize.None
-            notificationBtn.Size = UDim2.new(1, 0, 0, notificationBtn.AbsoluteSize.Y)
+            if clickConn then clickConn:Disconnect() end
+            if enterConn then enterConn:Disconnect() end
+            if leaveConn then leaveConn:Disconnect() end
             
-            local slideOutTween = TweenService:Create(notificationBtn, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-                Size = UDim2.new(1, 0, 0, 0)
-            })
-            local fadeOutTween = TweenService:Create(banner, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+            notificationBtn.Interactable = false
+            
+            local t1 = TweenService:Create(banner, smoothInfo, {
+                AnchorPoint = Vector2.new(0.5, 1),
+                Position = UDim2.new(0.5, 0, 0, -5),
                 GroupTransparency = 1
             })
+            local t2 = TweenService:Create(btnPadding, smoothInfo, {
+                PaddingTop = UDim.new(0, 0),
+                PaddingBottom = UDim.new(0, 0)
+            })
             
-            slideOutTween:Play()
-            fadeOutTween:Play()
+            t1:Play()
+            t2:Play()
             
-            slideOutTween.Completed:Connect(function()
-                notificationBtn:Destroy()
-            end)
+            task.wait(0.35)
+            notificationBtn:Destroy()
         end
         
         -- Close on click
-        local clickConn
-        clickConn = notificationBtn.MouseButton1Click:Connect(function()
-            if clickConn then
-                clickConn:Disconnect()
-                clickConn = nil
-            end
-            closeNotification()
-        end)
+        clickConn = notificationBtn.MouseButton1Click:Connect(closeNotification)
         
-        -- Auto close after duration
-        task.delay(duration, function()
-            if clickConn then
-                clickConn:Disconnect()
-                clickConn = nil
-            end
+        -- Auto close after duration, waiting if hovering
+        task.spawn(function()
+            repeat task.wait(duration) until not Hovering
             closeNotification()
         end)
     end
