@@ -9,23 +9,6 @@ UIFunctions.CurrentAccent = Color3.fromRGB(248, 191, 212)
 UIFunctions.CurrentMain = Color3.fromRGB(36, 36, 36)
 
 UIFunctions.Themes = {}
-UIFunctions.connections = {}
-
-function UIFunctions.register(conn)
-    table.insert(UIFunctions.connections, conn)
-    return conn
-end
-
-function UIFunctions.unregister(conn)
-    for i, c in ipairs(UIFunctions.connections) do
-        if c == conn then
-            table.remove(UIFunctions.connections, i)
-            break
-        end
-    end
-end
-
-local register = function(conn) return UIFunctions.register(conn) end
 
 function UIFunctions.New(class, props, parent)
     local i = Instance.new(class)
@@ -85,19 +68,6 @@ end
 
 -- Drag, Resize, Minimize, stats handling
 function UIFunctions.InitBehavior(G2L, window, closeCallback)
-    if G2L["1"] then
-        G2L["1"].Destroying:Connect(function()
-            for _, conn in ipairs(UIFunctions.connections) do
-                if conn then
-                    pcall(function()
-                        conn:Disconnect()
-                    end)
-                end
-            end
-            table.clear(UIFunctions.connections)
-        end)
-    end
-
     local isMinimized = false
     local originalSize = G2L["2"].Size
     local sidebarOpen = true
@@ -143,7 +113,7 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
         end
     end
 
-    register(UserInputService.InputChanged:Connect(function(input)
+    UserInputService.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement then
             if drag and not resizing then
                 local delta = input.Position - dragStart
@@ -155,17 +125,17 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
                 end
             end
         end
-    end))
+    end)
 
-    register(UserInputService.InputEnded:Connect(function(input) 
+    UserInputService.InputEnded:Connect(function(input) 
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             drag, windowDragged = false, false
         end
-    end))
+    end)
 
     -- RenderStepped for Lerp movement
     local lerpConn
-    lerpConn = register(RunService.RenderStepped:Connect(function()
+    lerpConn = RunService.RenderStepped:Connect(function()
         if not G2L["1"] or not G2L["1"].Parent then
             lerpConn:Disconnect()
             return
@@ -173,10 +143,10 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
         if drag and windowTargetPos then
             G2L["2"].Position = G2L["2"].Position:Lerp(windowTargetPos, 0.12)
         end
-    end))
+    end)
 
     -- Keybind Toggle (Customizable, defaults to RightControl)
-    register(UserInputService.InputBegan:Connect(function(input, gpe)
+    UserInputService.InputBegan:Connect(function(input, gpe)
         if not gpe then
             if input.KeyCode == (UIFunctions.ToggleKey or Enum.KeyCode.RightControl) then
                 animateToggle()
@@ -206,15 +176,71 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
                 drag, dragStart, startPos, windowDragged, windowTargetPos = true, pos, G2L["2"].Position, false, G2L["2"].Position
             end
         end
-    end))
+    end)
 
-    -- Sidebar Toggle Connection
+    -- Sidebar Toggle Function
+    local function animateSidebar()
+        sidebarOpen = not sidebarOpen
+        
+        local barTargetSize = sidebarOpen and UDim2.new(0, 220, 1, 0) or UDim2.new(0, 60, 1, 0)
+        local screenTargetSize = sidebarOpen and UDim2.new(1, -235, 1, 0) or UDim2.new(1, -75, 1, 0)
+        
+        TweenService:Create(G2L["16"], TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = barTargetSize}):Play()
+        TweenService:Create(G2L["11"], TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = screenTargetSize}):Play()
+        
+        local navPadding = G2L["4c"]:FindFirstChildOfClass("UIPadding")
+        if navPadding then
+            navPadding.PaddingLeft = sidebarOpen and UDim.new(0, 8) or UDim.new(0, 0)
+            navPadding.PaddingRight = sidebarOpen and UDim.new(0, 8) or UDim.new(0, 0)
+        end
+        
+        local mainPadding = G2L["19"]:FindFirstChildOfClass("UIPadding")
+        if mainPadding then
+            mainPadding.PaddingLeft = sidebarOpen and UDim.new(0, 6) or UDim.new(0, 0)
+            mainPadding.PaddingRight = sidebarOpen and UDim.new(0, 6) or UDim.new(0, 0)
+        end
+        
+        local userPadding = G2L["38"]:FindFirstChildOfClass("UIPadding")
+        if userPadding then
+            userPadding.PaddingLeft = sidebarOpen and UDim.new(0, 10) or UDim.new(0, 6)
+            userPadding.PaddingRight = sidebarOpen and UDim.new(0, 35) or UDim.new(0, 6)
+        end
+        
+        local userInfo = G2L["38"]:FindFirstChild("info")
+        if userInfo then
+            userInfo.Visible = sidebarOpen
+        end
+        
+        local userTime = G2L["38"]:FindFirstChild("time")
+        if userTime then
+            userTime.Visible = sidebarOpen
+        end
+        
+        local function updateItems(parentFrame)
+            for _, btn in ipairs(parentFrame:GetChildren()) do
+                if btn:IsA("ImageButton") then
+                    local innerItem = btn:FindFirstChild("item")
+                    if innerItem then
+                        local label = innerItem:FindFirstChild("label")
+                        if label then
+                            label.Visible = sidebarOpen
+                        end
+                        local uiPadding = innerItem:FindFirstChildOfClass("UIPadding")
+                        if uiPadding then
+                            uiPadding.PaddingLeft = sidebarOpen and UDim.new(0, 12) or UDim.new(0, 9)
+                            uiPadding.PaddingRight = sidebarOpen and UDim.new(0, 12) or UDim.new(0, 9)
+                        end
+                    end
+                end
+            end
+        end
+        
+        updateItems(G2L["4c"])
+        updateItems(G2L["19"])
+    end
+
     if G2L["80"] then
-        G2L["80"].MouseButton1Click:Connect(function()
-            sidebarOpen = not sidebarOpen
-            TweenService:Create(G2L["16"], TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = sidebarOpen and UDim2.new(0, 220, 1, 0) or UDim2.new(0, 0, 1, 0)}):Play()
-            TweenService:Create(G2L["11"], TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = sidebarOpen and UDim2.new(1, -235, 1, 0) or UDim2.new(1, 0, 1, 0)}):Play()
-        end)
+        G2L["80"].MouseButton1Click:Connect(animateSidebar)
     end
 
     local function closeUI()
@@ -296,11 +322,7 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
                 miniButtons.maximize.MouseButton1Click:Connect(toggleMinimize) 
             end
             if miniButtons:FindFirstChild("sidebar_toggle") then
-                miniButtons.sidebar_toggle.MouseButton1Click:Connect(function()
-                    sidebarOpen = not sidebarOpen
-                    TweenService:Create(G2L["16"], TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = sidebarOpen and UDim2.new(0, 220, 1, 0) or UDim2.new(0, 0, 1, 0)}):Play()
-                    TweenService:Create(G2L["11"], TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = sidebarOpen and UDim2.new(1, -235, 1, 0) or UDim2.new(1, 0, 1, 0)}):Play()
-                end)
+                miniButtons.sidebar_toggle.MouseButton1Click:Connect(animateSidebar)
             end
         else
 
@@ -338,19 +360,16 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
                         end
                     end
                 end)
-                register(resizeConn)
             end
         end)
-        register(UserInputService.InputEnded:Connect(function(input) 
+        UserInputService.InputEnded:Connect(function(input) 
             if input.UserInputType == Enum.UserInputType.MouseButton1 and resizing then 
                 resizing = false 
                 if resizeConn then 
                     resizeConn:Disconnect() 
-                    UIFunctions.unregister(resizeConn)
-                    resizeConn = nil
                 end 
             end 
-        end))
+        end)
     end
 
     -- Calculate FPS precisely using RenderStepped
@@ -358,7 +377,7 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
     local fpsCount = 0
     local currentFps = 0
     local fpsConn
-    fpsConn = register(RunService.RenderStepped:Connect(function()
+    fpsConn = RunService.RenderStepped:Connect(function()
         if not G2L["1"] or not G2L["1"].Parent then
             fpsConn:Disconnect()
             return
@@ -370,7 +389,7 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
             fpsCount = 0
             lastTime = now
         end
-    end))
+    end)
 
     -- Stats Updater Loop (Runs once per second)
     task.spawn(function()
@@ -496,15 +515,15 @@ end
                     })
                 }, stroke)
 
+                -- Spin gradient border
                 local borderSpinConn
-                borderSpinConn = register(RunService.RenderStepped:Connect(function(dt)
+                borderSpinConn = RunService.RenderStepped:Connect(function(dt)
                     if not navBtn or not navBtn.Parent then
                         borderSpinConn:Disconnect()
-                        UIFunctions.unregister(borderSpinConn)
                         return
                     end
                     gradient.Rotation = (gradient.Rotation + 6 * dt) % 360
-                end))
+                end)
 
                 New("UIListLayout", {
                     FillDirection = Enum.FillDirection.Horizontal,
