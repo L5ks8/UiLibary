@@ -7,7 +7,6 @@ return function(mainfunctions, components)
     Library.Themes = mainfunctions.Themes
 
     local NotificationSystem = components.notification(mainfunctions)
-    local ProfileSystem = components.profile and components.profile(mainfunctions) or nil
     
     function Library:Notify(config)
         return NotificationSystem:Notify(config)
@@ -504,7 +503,7 @@ function Library:CreateWindow(config)
         AutomaticSize = Enum.AutomaticSize.XY
     }, G2L["a1"])
 
-    -- Load Profile Component
+    -- Load Profile Component on click
     local profileGui = nil
     
     -- Avatar click handler to show/hide profile
@@ -515,17 +514,16 @@ function Library:CreateWindow(config)
         ZIndex = 2
     }, avatarFrame)
     
-    if ProfileSystem then
-        avatarButton.MouseButton1Click:Connect(function()
-            if profileGui then
-                profileGui:Destroy()
-                profileGui = nil
-            else
-                profileGui = ProfileSystem
-                profileGui.Visible = true
+    avatarButton.MouseButton1Click:Connect(function()
+        if profileGui then
+            profileGui:Destroy()
+            profileGui = nil
+        else
+            if components.profile then
+                profileGui = components.profile(mainfunctions)
             end
-        end)
-    end
+        end
+    end)
 
     -- Set flex behavior on footer
     if G2L["18"] and not G2L["18"]:FindFirstChildOfClass("UIFlexItem") then
