@@ -370,10 +370,39 @@ return function(mainfunctions)
         LayoutOrder = 2
     }, leftPanel)
 
-    local worldModel = New("WorldModel", {
-        WorldPivot = CFrame.new(Vector3.new(72, -5.0503, 79), Vector3.new(0.17365, 0, 0.98481)),
-        Name = "Model"
-    }, viewport)
+    local camera = Instance.new("Camera")
+    camera.FieldOfView = 20
+    camera.CFrame = CFrame.new(Vector3.new(0, 0, 10), Vector3.new(0, 0, 0))
+    viewport.CurrentCamera = camera
+
+    local charClone
+    local function loadCharacter()
+        if charClone then charClone:Destroy() end
+        local origChar = LocalPlayer.Character
+        if not origChar then return end
+        local wasArchivable = origChar.Archivable
+        origChar.Archivable = true
+        charClone = origChar:Clone()
+        origChar.Archivable = wasArchivable
+        for _, child in ipairs(charClone:GetDescendants()) do
+            if child:IsA("LuaSourceContainer") or child:IsA("Sound") or child:IsA("ForceField") then
+                child:Destroy()
+            end
+        end
+        for _, part in ipairs(charClone:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Anchored = true
+                part.CanCollide = false
+            end
+        end
+        charClone.Parent = viewport
+    end
+
+    task.spawn(loadCharacter)
+    LocalPlayer.CharacterAdded:Connect(function()
+        task.wait(0.5)
+        loadCharacter()
+    end)
 
     New("UICorner", {Name = "corner", CornerRadius = UDim.new(0.1, 0)}, viewport)
 
@@ -473,6 +502,18 @@ return function(mainfunctions)
     }, ageCard)
     New("UIPadding", {PaddingRight = UDim.new(0, 12), Name = "Padding"}, ageValue)
 
+    local ageDays = LocalPlayer.AccountAge
+    if ageDays then
+        if ageDays < 30 then
+            ageValue.Text = ageDays .. "d"
+        elseif ageDays < 365 then
+            ageValue.Text = math.floor(ageDays / 30) .. "m"
+        else
+            local years = math.floor(ageDays / 365)
+            ageValue.Text = years .. "y"
+        end
+    end
+
     New("UIPadding", {
         PaddingTop = UDim.new(0, 15),
         PaddingRight = UDim.new(0, 17),
@@ -542,6 +583,24 @@ return function(mainfunctions)
         Position = UDim2.new(0, 0, 1, 0)
     }, playtimeCard)
     New("UIPadding", {PaddingRight = UDim.new(0, 12), Name = "Padding"}, playtimeValue)
+
+    local sessionStart = os.clock()
+    task.spawn(function()
+        while screenGui and screenGui.Parent do
+            local elapsed = os.clock() - sessionStart
+            local hours = math.floor(elapsed / 3600)
+            local minutes = math.floor((elapsed % 3600) / 60)
+            local seconds = math.floor(elapsed % 60)
+            if hours > 0 then
+                playtimeValue.Text = string.format("%dh %dm", hours, minutes)
+            elseif minutes > 0 then
+                playtimeValue.Text = string.format("%dm %ds", minutes, seconds)
+            else
+                playtimeValue.Text = string.format("%ds", seconds)
+            end
+            task.wait(1)
+        end
+    end)
 
     New("UIPadding", {
         PaddingTop = UDim.new(0, 15),
