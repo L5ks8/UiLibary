@@ -65,7 +65,8 @@ return function(mainfunctions)
             ImageTransparency = 1,
             BackgroundTransparency = 1,
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-            AutomaticSize = Enum.AutomaticSize.XY,
+            Size = UDim2.new(1, 0, 0, 0), -- Start height at 0
+            AutomaticSize = Enum.AutomaticSize.None, -- Disable initially for tweening
             ClipsDescendants = true
         })
         
@@ -80,7 +81,9 @@ return function(mainfunctions)
             BorderSizePixel = 0,
             BackgroundColor3 = Color3.fromRGB(37, 37, 37),
             AutomaticSize = Enum.AutomaticSize.XY,
-            GroupTransparency = 1 -- Start transparent for fade-in
+            GroupTransparency = 1, -- Start transparent for fade-in
+            AnchorPoint = Vector2.new(0.5, 1), -- Align to bottom of the button
+            Position = UDim2.new(0.5, 0, 1, 0) -- Centered horizontally, bottom vertically
         }, notificationBtn)
         
         New("UICorner", {
@@ -237,16 +240,28 @@ return function(mainfunctions)
             PaddingBottom = UDim.new(0, 18)
         }, banner)
         
-        banner.Position = UDim2.new(1.2, 0, 0, 0)
         notificationBtn.Parent = container
         
+        -- Yield brief moment to allow layout generation to compute target size
         task.wait()
         
-        local slideInTween = TweenService:Create(banner, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            Position = UDim2.new(0, 0, 0, 0),
+        local targetHeight = banner.AbsoluteSize.Y + 10 -- Height of banner plus top/bottom padding
+        
+        -- Tween the height and fade in the banner
+        local slideInTween = TweenService:Create(notificationBtn, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Size = UDim2.new(1, 0, 0, targetHeight)
+        })
+        local fadeInTween = TweenService:Create(banner, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
             GroupTransparency = 0
         })
+        
         slideInTween:Play()
+        fadeInTween:Play()
+        
+        slideInTween.Completed:Connect(function()
+            -- Re-enable automatic height to adapt to potential dynamic contents
+            notificationBtn.AutomaticSize = Enum.AutomaticSize.Y
+        end)
         
         -- Cleanup animation helper
         local isClosing = false
@@ -254,25 +269,22 @@ return function(mainfunctions)
             if isClosing then return end
             isClosing = true
             
-            -- Slide out to the right and fade out
-            local slideOutTween = TweenService:Create(banner, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-                Position = UDim2.new(1.2, 0, 0, 0),
+            -- Turn off automatic size to shrink height
+            notificationBtn.AutomaticSize = Enum.AutomaticSize.None
+            notificationBtn.Size = UDim2.new(1, 0, 0, notificationBtn.AbsoluteSize.Y)
+            
+            local slideOutTween = TweenService:Create(notificationBtn, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+                Size = UDim2.new(1, 0, 0, 0)
+            })
+            local fadeOutTween = TweenService:Create(banner, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
                 GroupTransparency = 1
             })
+            
             slideOutTween:Play()
+            fadeOutTween:Play()
+            
             slideOutTween.Completed:Connect(function()
-                -- Temporarily override automatic size to collapse the height to 0 smoothly
-                notificationBtn.AutomaticSize = Enum.AutomaticSize.None
-                local currentHeight = notificationBtn.AbsoluteSize.Y
-                notificationBtn.Size = UDim2.new(1, 0, 0, currentHeight)
-                
-                local collapseTween = TweenService:Create(notificationBtn, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                    Size = UDim2.new(1, 0, 0, 0)
-                })
-                collapseTween:Play()
-                collapseTween.Completed:Connect(function()
-                    notificationBtn:Destroy()
-                end)
+                notificationBtn:Destroy()
             end)
         end
         
