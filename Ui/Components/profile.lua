@@ -620,25 +620,40 @@ return function(mainfunctions)
         end
 
         -- Load hair & accessories
-        task.spawn(function()
-            local char = LocalPlayer.Character
-            if not char then return end
+        local char = LocalPlayer.Character
+        if char then
             for _, child in ipairs(char:GetChildren()) do
                 if child:IsA("Accessory") or (child:IsA("Model") and child:FindFirstChild("Handle")) then
+                    local originalHandle = child:FindFirstChild("Handle")
+                    if not originalHandle or not originalHandle:IsA("BasePart") then continue end
+                    local originalWeld = originalHandle:FindFirstChildOfClass("Weld") or originalHandle:FindFirstChildOfClass("Motor6D")
                     local cloned = child:Clone()
-                    -- Remove all joints
-                    for _, j in ipairs(cloned:GetDescendants()) do
-                        if j:IsA("JointInstance") then j:Destroy() end
-                    end
                     local handle = cloned:FindFirstChild("Handle")
                     if handle and handle:IsA("BasePart") then
+                        for _, j in ipairs(handle:GetChildren()) do
+                            if j:IsA("JointInstance") then j:Destroy() end
+                        end
                         handle.Anchored = true
                         handle.CanCollide = false
+                    end
+                    if originalWeld and handle then
+                        local targetName = originalWeld.Part1 and originalWeld.Part1.Name
+                        local c0 = originalWeld.C0
+                        if targetName then
+                            local rigPart = rig:FindFirstChild(targetName)
+                            if rigPart and rigPart:IsA("BasePart") then
+                                local newWeld = Instance.new("Weld")
+                                newWeld.Part0 = rigPart
+                                newWeld.Part1 = handle
+                                newWeld.C0 = c0
+                                newWeld.Parent = newWeld.Part1
+                            end
+                        end
                     end
                     cloned.Parent = rig
                 end
             end
-        end)
+        end
 
         return world
     end
@@ -696,14 +711,31 @@ return function(mainfunctions)
         -- Load hair & accessories on respawn
         for _, child in ipairs(char:GetChildren()) do
             if child:IsA("Accessory") or (child:IsA("Model") and child:FindFirstChild("Handle")) then
+                local originalHandle = child:FindFirstChild("Handle")
+                if not originalHandle or not originalHandle:IsA("BasePart") then continue end
+                local originalWeld = originalHandle:FindFirstChildOfClass("Weld") or originalHandle:FindFirstChildOfClass("Motor6D")
                 local cloned = child:Clone()
-                for _, j in ipairs(cloned:GetDescendants()) do
-                    if j:IsA("JointInstance") then j:Destroy() end
-                end
                 local handle = cloned:FindFirstChild("Handle")
                 if handle and handle:IsA("BasePart") then
+                    for _, j in ipairs(handle:GetChildren()) do
+                        if j:IsA("JointInstance") then j:Destroy() end
+                    end
                     handle.Anchored = true
                     handle.CanCollide = false
+                end
+                if originalWeld and handle then
+                    local targetName = originalWeld.Part1 and originalWeld.Part1.Name
+                    local c0 = originalWeld.C0
+                    if targetName then
+                        local rigPart = rig:FindFirstChild(targetName)
+                        if rigPart and rigPart:IsA("BasePart") then
+                            local newWeld = Instance.new("Weld")
+                            newWeld.Part0 = rigPart
+                            newWeld.Part1 = handle
+                            newWeld.C0 = c0
+                            newWeld.Parent = newWeld.Part1
+                        end
+                    end
                 end
                 cloned.Parent = rig
             end
@@ -1245,8 +1277,70 @@ return function(mainfunctions)
     }, advContent)
 
     -- Leave button
-    createGridButton(advContent, "leave", "14149523795", function()
-        LocalPlayer:Kick("You left the game.")
+    local leaveBtn = New("ImageButton", {
+        Active = true,
+        BorderSizePixel = 0,
+        AutoButtonColor = false,
+        BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+        Selectable = false,
+        Size = UDim2.new(0.5, -3, 0, 40),
+        LayoutOrder = 12,
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Name = "leave"
+    }, advContent)
+
+    New("UICorner", {Name = "Corner", CornerRadius = UDim.new(0, 12)}, leaveBtn)
+
+    New("UIListLayout", {
+        Padding = UDim.new(0, 10),
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Name = "list",
+        FillDirection = Enum.FillDirection.Horizontal
+    }, leaveBtn)
+
+    New("UIPadding", {
+        PaddingRight = UDim.new(0, 12),
+        Name = "padding",
+        PaddingLeft = UDim.new(0, 12)
+    }, leaveBtn)
+
+    local leaveIcon = New("ImageLabel", {
+        BorderSizePixel = 0,
+        ScaleType = Enum.ScaleType.Fit,
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        ImageTransparency = 0.2,
+        Image = "rbxassetid://14149523795",
+        Size = UDim2.new(0, 17, 0, 17),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        BackgroundTransparency = 1,
+        LayoutOrder = 1,
+        Name = "Icon"
+    }, leaveBtn)
+    New("UIScale", {Name = "scale"}, leaveIcon)
+
+    local leaveLabel = New("TextLabel", {
+        BorderSizePixel = 0,
+        AutoLocalize = false,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTransparency = 0.2,
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        FontFace = fonts.med,
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -20, 1, 0),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Text = "Leave",
+        LayoutOrder = 2,
+        Name = "Name"
+    }, leaveBtn)
+    leaveLabel:SetAttribute("Key", "orbit.modals.player.leave")
+    New("UIFlexItem", {Name = "flex", FlexMode = Enum.UIFlexMode.Fill}, leaveLabel)
+    New("UIFlexItem", {Name = "flex", FlexMode = Enum.UIFlexMode.Fill}, leaveBtn)
+
+    leaveBtn.MouseButton1Click:Connect(function()
+        LocalPlayer:Kick()
     end)
 
     -- Loading done
