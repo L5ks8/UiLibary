@@ -1,4 +1,4 @@
-﻿local CollectionService = game:GetService("CollectionService")
+local CollectionService = game:GetService("CollectionService")
 
 return function(mainfunctions)
     local New = mainfunctions.New
