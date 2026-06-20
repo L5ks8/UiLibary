@@ -12,41 +12,42 @@ return function(mainfunctions)
     local targetParent = (gethui and gethui()) or game:GetService("CoreGui") or (LocalPlayer and LocalPlayer:WaitForChild("PlayerGui"))
     
     -- Dedicated ScreenGui for Notifications (always on top)
-    local screenGui = targetParent:FindFirstChild("OrbitNotifications")
-    if screenGui then
-        screenGui:Destroy()
+    local screenGui = targetParent:FindFirstChild("Notifications")
+    if not screenGui then
+        screenGui = New("ScreenGui", {
+            Name = "Notifications",
+            IgnoreGuiInset = true,
+            ResetOnSpawn = false,
+            ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+            DisplayOrder = 99999
+        }, targetParent)
     end
     
-    screenGui = New("ScreenGui", {
-        Name = "OrbitNotifications",
-        IgnoreGuiInset = true,
-        ResetOnSpawn = false,
-        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-        DisplayOrder = 99999
-    }, targetParent)
-    
-    -- Notifications Container Frame (aligned to center-top)
-    local container = New("Frame", {
-        Name = "Notifications",
-        Size = UDim2.new(0, 450, 1, -40),
-        Position = UDim2.new(0.5, 0, 0, 20),
-        AnchorPoint = Vector2.new(0.5, 0),
-        BackgroundTransparency = 1,
-        ZIndex = 3
-    }, screenGui)
-    
-    New("UIListLayout", {
-        Name = "Layout",
-        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-        VerticalAlignment = Enum.VerticalAlignment.Top,
-        SortOrder = Enum.SortOrder.LayoutOrder,
-        Padding = UDim.new(0, 10)
-    }, container)
-    
-    New("UIPadding", {
-        Name = "Padding",
-        PaddingTop = UDim.new(0, 12)
-    }, container)
+    -- Notifications Container Frame (aligned to top-center)
+    local container = screenGui:FindFirstChild("Notifications")
+    if not container then
+        container = New("Frame", {
+            Name = "Notifications",
+            Size = UDim2.new(0, 320, 1, -40),
+            Position = UDim2.new(0.5, 0, 0, 20),
+            AnchorPoint = Vector2.new(0.5, 0),
+            BackgroundTransparency = 1,
+            ZIndex = 3
+        }, screenGui)
+        
+        New("UIListLayout", {
+            Name = "Layout",
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            VerticalAlignment = Enum.VerticalAlignment.Top,
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            Padding = UDim.new(0, 10)
+        }, container)
+        
+        New("UIPadding", {
+            Name = "Padding",
+            PaddingTop = UDim.new(0, 12)
+        }, container)
+    end
     
     function NotificationSystem:Notify(config)
         config = config or {}
@@ -236,7 +237,7 @@ return function(mainfunctions)
             PaddingBottom = UDim.new(0, 18)
         }, banner)
         
-        banner.Position = UDim2.new(0, 0, -1.2, 0)
+        banner.Position = UDim2.new(1.2, 0, 0, 0)
         notificationBtn.Parent = container
         
         task.wait()
@@ -253,9 +254,9 @@ return function(mainfunctions)
             if isClosing then return end
             isClosing = true
             
-            -- Slide out to the top and fade out
+            -- Slide out to the right and fade out
             local slideOutTween = TweenService:Create(banner, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-                Position = UDim2.new(0, 0, -1.2, 0),
+                Position = UDim2.new(1.2, 0, 0, 0),
                 GroupTransparency = 1
             })
             slideOutTween:Play()
