@@ -442,6 +442,37 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
                 if G2L["warn_value"] then
                     G2L["warn_value"].Text = tostring(G2L["1"]:GetAttribute("warnCount") or 0)
                 end
+                if G2L["debug_region"] and not G2L["1"]:GetAttribute("regionFetched") then
+                    pcall(function()
+                        local Remotes = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+                        if Remotes then
+                            local retrieving = Remotes:FindFirstChild("Retrieving")
+                            if retrieving then
+                                local retrieveRegion = retrieving:FindFirstChild("RetrieveServerRegion")
+                                if retrieveRegion then
+                                    local region = retrieveRegion:InvokeServer()
+                                    if region then
+                                        G2L["debug_region"].Text = "Region: " .. region
+                                    end
+                                end
+                            end
+                        end
+                        if G2L["debug_region"].Text ~= "Region: N/A" then return end
+                        local ncSuccess, nc = pcall(game.GetService, game, "NetworkClient")
+                        if ncSuccess and nc then
+                            local addr = nc.PeerConnectAddress
+                            if addr and addr ~= "" then
+                                G2L["debug_region"].Text = "Region: " .. tostring(addr):match("(%d+%.%d+)") or tostring(addr)
+                            end
+                        end
+                        if G2L["debug_region"].Text == "Region: N/A" then
+                            G2L["debug_region"].Text = "Region: " .. game.JobId:sub(1, 8)
+                        end
+                    end)
+                    G2L["1"]:SetAttribute("regionFetched", os.time())
+                elseif G2L["debug_region"] and os.time() - (G2L["1"]:GetAttribute("regionFetched") or 0) > 30 then
+                    G2L["1"]:SetAttribute("regionFetched", nil)
+                end
             end)
         end
     end)
