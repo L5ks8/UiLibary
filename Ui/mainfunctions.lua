@@ -391,6 +391,63 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
         end
     end)
 
+    -- Log Service Listener for Errors and Warnings
+    local LogService = game:GetService("LogService")
+    local errorCount = 0
+    local warningCount = 0
+
+    pcall(function()
+        for _, log in ipairs(LogService:GetLogHistory()) do
+            if log.MessageType == Enum.MessageType.MessageError then
+                errorCount = errorCount + 1
+            elseif log.MessageType == Enum.MessageType.MessageWarning then
+                warningCount = warningCount + 1
+            end
+        end
+    end)
+    if G2L["errors_value"] then G2L["errors_value"].Text = tostring(errorCount) end
+    if G2L["warnings_value"] then G2L["warnings_value"].Text = tostring(warningCount) end
+
+    local logConn
+    logConn = LogService.MessageOut:Connect(function(message, messageType)
+        if not G2L["1"] or not G2L["1"].Parent then
+            logConn:Disconnect()
+            return
+        end
+        if messageType == Enum.MessageType.MessageError then
+            errorCount = errorCount + 1
+            if G2L["errors_value"] then
+                G2L["errors_value"].Text = tostring(errorCount)
+            end
+        elseif messageType == Enum.MessageType.MessageWarning then
+            warningCount = warningCount + 1
+            if G2L["warnings_value"] then
+                G2L["warnings_value"].Text = tostring(warningCount)
+            end
+        end
+    end)
+
+    -- Fetch server region safely
+    task.spawn(function()
+        local region = "N/A"
+        local success, result = pcall(function()
+            return game:HttpGet("https://ipapi.co/country_name/")
+        end)
+        if success and result and not result:find("error") then
+            region = result
+        else
+            local success2, result2 = pcall(function()
+                return game:HttpGet("https://ipapi.co/timezone/")
+            end)
+            if success2 and result2 and not result2:find("error") then
+                region = result2
+            end
+        end
+        if G2L["region_label"] then
+            G2L["region_label"].Text = "Region: " .. region
+        end
+    end)
+
     -- Stats Updater Loop (Runs once per second)
     task.spawn(function()
         while task.wait(1) do
@@ -400,7 +457,7 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
             
             pcall(function()
                 if G2L["fps_label"] then
-                    G2L["fps_label"].Text = "FPS: " .. currentFps
+                    G2L["fps_label"].Text = "FPS: " .. currentFps .. "/s"
                 end
                 if G2L["ping_label"] then
                     local ping = math.floor(Stats:FindFirstChild("PerformanceStats") and Stats.PerformanceStats.Ping:GetValue() or 0)
