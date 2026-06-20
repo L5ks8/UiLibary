@@ -1241,18 +1241,6 @@ return function(mainfunctions)
             char.Humanoid.Health = 0
         end
     end)
-    local killStroke = New("UIStroke", {
-        Thickness = 0,
-        Color = Color3.fromRGB(255, 60, 60),
-        Transparency = 0.4,
-        Name = "Glow"
-    }, killBtn)
-    killBtn.MouseEnter:Connect(function()
-        TweenService:Create(killStroke, TweenInfo.new(0.15), {Thickness = 4}):Play()
-    end)
-    killBtn.MouseLeave:Connect(function()
-        TweenService:Create(killStroke, TweenInfo.new(0.2), {Thickness = 0}):Play()
-    end)
 
     -- Advanced category
     local advancedCat = createCategory("advanced", 6)
@@ -1270,7 +1258,7 @@ return function(mainfunctions)
     }, advancedCat)
 
     New("UIGridLayout", {
-        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        HorizontalAlignment = Enum.HorizontalAlignment.Left,
         CellSize = UDim2.new(0.5, -3, 0, 40),
         SortOrder = Enum.SortOrder.LayoutOrder,
         CellPadding = UDim2.new(0, 6, 0, 6)
@@ -1310,7 +1298,7 @@ return function(mainfunctions)
         ScaleType = Enum.ScaleType.Fit,
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
         ImageTransparency = 0.2,
-        Image = "rbxassetid://14149523795",
+        Image = "rbxassetid://138668025068101",
         Size = UDim2.new(0, 17, 0, 17),
         BorderColor3 = Color3.fromRGB(0, 0, 0),
         BackgroundTransparency = 1,
