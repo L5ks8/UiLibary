@@ -12,7 +12,7 @@ local mainfunctions = loadstring(content1)()
 local mainframe = loadstring(content2)()
 
 local components = {}
-local componentNames = {"button", "toggle", "slider", "status", "paragraph", "dropdown", "avatar", "input", "uikeybind"}
+local componentNames = {"button", "toggle", "slider", "status", "paragraph", "dropdown", "avatar", "input", "uikeybind", "notification"}
 
 for _, name in ipairs(componentNames) do
     local success, content = pcall(game.HttpGet, game, componentsUrl .. name .. ".lua?t=" .. os.time())

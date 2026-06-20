@@ -6,6 +6,11 @@ return function(mainfunctions, components)
     Library.TabCount = 0
     Library.Themes = mainfunctions.Themes
 
+    local NotificationSystem = components.notification(mainfunctions)
+    function Library:Notify(config)
+        return NotificationSystem:Notify(config)
+    end
+
 function Library:CreateWindow(config)
     config = config or {}
     local title = config.Title or "Ui"
@@ -503,6 +508,9 @@ function Library:CreateWindow(config)
     end
 
     local Window = mainfunctions.BuildWindow(G2L, config, components)
+    Window.Notify = function(self, cfg)
+        return NotificationSystem:Notify(cfg)
+    end
     mainfunctions.SetTheme(G2L, defaultTheme)
     mainfunctions.InitBehavior(G2L, Window, config.OnClose)
     return Window
