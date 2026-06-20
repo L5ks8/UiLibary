@@ -206,7 +206,7 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
                 drag, dragStart, startPos, windowDragged, windowTargetPos = true, pos, G2L["2"].Position, false, G2L["2"].Position
             end
         end
-    end)
+    end))
 
     -- Sidebar Toggle Connection
     if G2L["80"] then
