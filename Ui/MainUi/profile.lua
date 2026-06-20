@@ -26,7 +26,7 @@ return function(mainfunctions)
         Name = "Profile",
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.new(0.5, 0, 0.5, 0),
-        Size = UDim2.new(0, 400, 0, 600),
+        Size = UDim2.new(0.5, 0, 0.7, 0),
         BackgroundColor3 = Color3.fromRGB(35, 35, 35),
         BorderSizePixel = 0,
         BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -179,7 +179,7 @@ return function(mainfunctions)
         HorizontalAlignment = Enum.HorizontalAlignment.Center,
         Padding = UDim.new(0, 14),
         SortOrder = Enum.SortOrder.LayoutOrder,
-        FillDirection = Enum.FillDirection.Vertical
+        FillDirection = Enum.FillDirection.Horizontal
     }, scroll)
 
     New("UIPadding", {
