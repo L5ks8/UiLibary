@@ -371,38 +371,256 @@ return function(mainfunctions)
     }, leftPanel)
 
     local camera = Instance.new("Camera")
-    camera.FieldOfView = 35
-    camera.CFrame = CFrame.new(Vector3.new(0, 1.5, 3.5), Vector3.new(0, 1.5, 0))
+    camera.FieldOfView = 20
     viewport.CurrentCamera = camera
 
-    local charClone
-    local function loadCharacter()
-        if charClone then charClone:Destroy() end
-        local origChar = LocalPlayer.Character
-        if not origChar then return end
-        local wasArchivable = origChar.Archivable
-        origChar.Archivable = true
-        charClone = origChar:Clone()
-        origChar.Archivable = wasArchivable
-        for _, child in ipairs(charClone:GetDescendants()) do
-            if child:IsA("LuaSourceContainer") or child:IsA("Sound") or child:IsA("ForceField") then
-                child:Destroy()
-            end
+    local function buildRig()
+        -- WorldModel
+        local world = Instance.new("WorldModel")
+        world.WorldPivot = CFrame.new(Vector3.new(268, 1257.94971, -1105), Vector3.new(0.17365, 0, 0.98481))
+        world.Name = "Model"
+
+        -- Rig (Model)
+        local rig = Instance.new("Model")
+        rig.WorldPivot = CFrame.new(Vector3.new(0, 0.5, -5.5), Vector3.new(0.17365, 0, 0.98481))
+        rig.Name = "Rig"
+        rig.Parent = world
+
+        -- Humanoid
+        local humanoid = Instance.new("Humanoid", rig)
+        humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+        humanoid.HealthDisplayDistance = 0
+        humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+        humanoid.NameDisplayDistance = 0
+
+        local desc = Instance.new("HumanoidDescription", humanoid)
+        desc.ProportionScale = 0
+        desc.RightArmColor = Color3.fromRGB(164, 163, 166)
+        desc.TorsoColor = Color3.fromRGB(100, 96, 99)
+        desc.RightLegColor = Color3.fromRGB(164, 163, 166)
+        desc.LeftLegColor = Color3.fromRGB(164, 163, 166)
+        desc.BodyTypeScale = 0
+        desc.LeftArmColor = Color3.fromRGB(164, 163, 166)
+        desc.Shirt = 8231083610
+        desc.HeadColor = Color3.fromRGB(164, 163, 166)
+        desc.Pants = 8231088943
+        local bpd1 = Instance.new("BodyPartDescription", desc)
+        bpd1.Color = Color3.fromRGB(164, 163, 166)
+        local bpd2 = Instance.new("BodyPartDescription", desc)
+        bpd2.Color = Color3.fromRGB(164, 163, 166)
+        bpd2.BodyPart = Enum.BodyPart.LeftArm
+        local bpd3 = Instance.new("BodyPartDescription", desc)
+        bpd3.Color = Color3.fromRGB(164, 163, 166)
+        bpd3.BodyPart = Enum.BodyPart.LeftLeg
+        local bpd4 = Instance.new("BodyPartDescription", desc)
+        bpd4.Color = Color3.fromRGB(164, 163, 166)
+        bpd4.BodyPart = Enum.BodyPart.RightArm
+        local bpd5 = Instance.new("BodyPartDescription", desc)
+        bpd5.Color = Color3.fromRGB(164, 163, 166)
+        bpd5.BodyPart = Enum.BodyPart.RightLeg
+        local bpd6 = Instance.new("BodyPartDescription", desc)
+        bpd6.Color = Color3.fromRGB(100, 96, 99)
+        bpd6.BodyPart = Enum.BodyPart.Torso
+
+        -- Shirt & Pants
+        local shirt = Instance.new("Shirt", rig)
+        shirt.ShirtTemplate = "http://www.roblox.com/asset/?id=8231083597"
+        local pants = Instance.new("Pants", rig)
+        pants.PantsTemplate = "http://www.roblox.com/asset/?id=8231088930"
+
+        local rootCF = CFrame.new(Vector3.new(0, 0.5, -5.5), Vector3.new(0.17365, 0, 0.98481))
+        local rootRot = Vector3.new(180, -10, 180)
+
+        -- Head
+        local head = Instance.new("Part", rig)
+        head.TopSurface = Enum.SurfaceType.Smooth
+        head.CFrame = CFrame.new(Vector3.new(0, 2, -5.5), Vector3.new(0.17365, 0, 0.98481))
+        head.Size = Vector3.new(2, 1, 1)
+        head.Rotation = rootRot
+        head.Name = "Head"
+        head.Anchored = true
+        head.CanCollide = false
+        Instance.new("SpecialMesh", head).Scale = Vector3.new(1.25, 1.25, 1.25)
+        local hairAtt = Instance.new("Attachment", head)
+        hairAtt.CFrame = CFrame.new(Vector3.new(0, 0.6, 0), Vector3.new(0, 0, -1))
+        hairAtt.Name = "HairAttachment"
+        local hatAtt = Instance.new("Attachment", head)
+        hatAtt.CFrame = CFrame.new(Vector3.new(0, 0.6, 0), Vector3.new(0, 0, -1))
+        hatAtt.Name = "HatAttachment"
+        local faceFront = Instance.new("Attachment", head)
+        faceFront.CFrame = CFrame.new(Vector3.new(0, 0, -0.6), Vector3.new(0, 0, -1))
+        faceFront.Name = "FaceFrontAttachment"
+        local faceCenter = Instance.new("Attachment", head)
+        faceCenter.Name = "FaceCenterAttachment"
+        local faceDecal = Instance.new("Decal", head)
+        faceDecal.Texture = "rbxasset://textures/face.png"
+        faceDecal.ColorMap = "rbxasset://textures/face.png"
+        faceDecal.Name = "face"
+
+        -- Torso
+        local torso = Instance.new("Part", rig)
+        torso.RightSurface = Enum.SurfaceType.Weld
+        torso.LeftSurface = Enum.SurfaceType.Weld
+        torso.CFrame = rootCF
+        torso.Size = Vector3.new(2, 2, 1)
+        torso.Rotation = rootRot
+        torso.Name = "Torso"
+        torso.Anchored = true
+        torso.CanCollide = false
+        local neckAtt = Instance.new("Attachment", torso)
+        neckAtt.CFrame = CFrame.new(Vector3.new(0, 1, 0), Vector3.new(0, 0, -1))
+        neckAtt.Name = "NeckAttachment"
+        local bodyFront = Instance.new("Attachment", torso)
+        bodyFront.CFrame = CFrame.new(Vector3.new(0, 0, -0.5), Vector3.new(0, 0, -1))
+        bodyFront.Name = "BodyFrontAttachment"
+        local bodyBack = Instance.new("Attachment", torso)
+        bodyBack.CFrame = CFrame.new(Vector3.new(0, 0, 0.5), Vector3.new(0, 0, -1))
+        bodyBack.Name = "BodyBackAttachment"
+        local leftCollar = Instance.new("Attachment", torso)
+        leftCollar.CFrame = CFrame.new(Vector3.new(-1, 1, 0), Vector3.new(0, 0, -1))
+        leftCollar.Name = "LeftCollarAttachment"
+        local rightCollar = Instance.new("Attachment", torso)
+        rightCollar.CFrame = CFrame.new(Vector3.new(1, 1, 0), Vector3.new(0, 0, -1))
+        rightCollar.Name = "RightCollarAttachment"
+        local waistFront = Instance.new("Attachment", torso)
+        waistFront.CFrame = CFrame.new(Vector3.new(0, -1, -0.5), Vector3.new(0, 0, -1))
+        waistFront.Name = "WaistFrontAttachment"
+        local waistCenter = Instance.new("Attachment", torso)
+        waistCenter.CFrame = CFrame.new(Vector3.new(0, -1, 0), Vector3.new(0, 0, -1))
+        waistCenter.Name = "WaistCenterAttachment"
+        local waistBack = Instance.new("Attachment", torso)
+        waistBack.CFrame = CFrame.new(Vector3.new(0, -1, 0.5), Vector3.new(0, 0, -1))
+        waistBack.Name = "WaistBackAttachment"
+
+        -- Motor6Ds on Torso
+        local rShoulder = Instance.new("Motor6D", torso)
+        rShoulder.MaxVelocity = 0.1
+        rShoulder.C1 = CFrame.new(Vector3.new(-0.5, 0.5, 0), Vector3.new(-1, 0, 0))
+        rShoulder.C0 = CFrame.new(Vector3.new(1, 0.5, 0), Vector3.new(-1, 0, 0))
+        rShoulder.Name = "Right Shoulder"
+        rShoulder.Part0 = torso
+        local lShoulder = Instance.new("Motor6D", torso)
+        lShoulder.MaxVelocity = 0.1
+        lShoulder.C1 = CFrame.new(Vector3.new(0.5, 0.5, 0), Vector3.new(1, 0, 0))
+        lShoulder.C0 = CFrame.new(Vector3.new(-1, 0.5, 0), Vector3.new(1, 0, 0))
+        lShoulder.Name = "Left Shoulder"
+        lShoulder.Part0 = torso
+        local rHip = Instance.new("Motor6D", torso)
+        rHip.MaxVelocity = 0.1
+        rHip.C1 = CFrame.new(Vector3.new(0.5, 1, 0), Vector3.new(-1, 0, 0))
+        rHip.C0 = CFrame.new(Vector3.new(1, -1, 0), Vector3.new(-1, 0, 0))
+        rHip.Name = "Right Hip"
+        rHip.Part0 = torso
+        local lHip = Instance.new("Motor6D", torso)
+        lHip.MaxVelocity = 0.1
+        lHip.C1 = CFrame.new(Vector3.new(-0.5, 1, 0), Vector3.new(1, 0, 0))
+        lHip.C0 = CFrame.new(Vector3.new(-1, -1, 0), Vector3.new(1, 0, 0))
+        lHip.Name = "Left Hip"
+        lHip.Part0 = torso
+        local neck = Instance.new("Motor6D", torso)
+        neck.MaxVelocity = 0.1
+        neck.C1 = CFrame.new(Vector3.new(0, -0.5, 0), Vector3.new(0, -1, 0))
+        neck.C0 = CFrame.new(Vector3.new(0, 1, 0), Vector3.new(0, -1, 0))
+        neck.Name = "Neck"
+        neck.Part0 = torso
+
+        -- Left Arm
+        local leftArm = Instance.new("Part", rig)
+        leftArm.CanCollide = false
+        leftArm.CFrame = CFrame.new(Vector3.new(1.47721, 0.5, -5.76047), Vector3.new(0.17365, 0, 0.98481))
+        leftArm.Size = Vector3.new(1, 2, 1)
+        leftArm.Rotation = rootRot
+        leftArm.Name = "Left Arm"
+        leftArm.Anchored = true
+        local lShoulderAtt = Instance.new("Attachment", leftArm)
+        lShoulderAtt.CFrame = CFrame.new(Vector3.new(0, 1, 0), Vector3.new(0, 0, -1))
+        lShoulderAtt.Name = "LeftShoulderAttachment"
+        local lGripAtt = Instance.new("Attachment", leftArm)
+        lGripAtt.CFrame = CFrame.new(Vector3.new(0, -1, 0), Vector3.new(0, 0, -1))
+        lGripAtt.Name = "LeftGripAttachment"
+        lShoulder.Part1 = leftArm
+
+        -- Right Arm
+        local rightArm = Instance.new("Part", rig)
+        rightArm.CanCollide = false
+        rightArm.CFrame = CFrame.new(Vector3.new(-1.47721, 0.5, -5.23953), Vector3.new(0.17365, 0, 0.98481))
+        rightArm.Size = Vector3.new(1, 2, 1)
+        rightArm.Rotation = rootRot
+        rightArm.Name = "Right Arm"
+        rightArm.Anchored = true
+        local rShoulderAtt = Instance.new("Attachment", rightArm)
+        rShoulderAtt.CFrame = CFrame.new(Vector3.new(0, 1, 0), Vector3.new(0, 0, -1))
+        rShoulderAtt.Name = "RightShoulderAttachment"
+        local rGripAtt = Instance.new("Attachment", rightArm)
+        rGripAtt.CFrame = CFrame.new(Vector3.new(0, -1, 0), Vector3.new(0, 0, -1))
+        rGripAtt.Name = "RightGripAttachment"
+        rShoulder.Part1 = rightArm
+
+        -- Left Leg
+        local leftLeg = Instance.new("Part", rig)
+        leftLeg.BottomSurface = Enum.SurfaceType.Smooth
+        leftLeg.CanCollide = false
+        leftLeg.CFrame = CFrame.new(Vector3.new(0.4924, -1.5, -5.58682), Vector3.new(0.17365, 0, 0.98481))
+        leftLeg.Size = Vector3.new(1, 2, 1)
+        leftLeg.Rotation = rootRot
+        leftLeg.Name = "Left Leg"
+        leftLeg.Anchored = true
+        local lFootAtt = Instance.new("Attachment", leftLeg)
+        lFootAtt.CFrame = CFrame.new(Vector3.new(0, -1, 0), Vector3.new(0, 0, -1))
+        lFootAtt.Name = "LeftFootAttachment"
+
+        -- Right Leg
+        local rightLeg = Instance.new("Part", rig)
+        rightLeg.BottomSurface = Enum.SurfaceType.Smooth
+        rightLeg.CanCollide = false
+        rightLeg.CFrame = CFrame.new(Vector3.new(-0.4924, -1.5, -5.41318), Vector3.new(0.17365, 0, 0.98481))
+        rightLeg.Size = Vector3.new(1, 2, 1)
+        rightLeg.Rotation = rootRot
+        rightLeg.Name = "Right Leg"
+        rightLeg.Anchored = true
+        local rFootAtt = Instance.new("Attachment", rightLeg)
+        rFootAtt.CFrame = CFrame.new(Vector3.new(0, -1, 0), Vector3.new(0, 0, -1))
+        rFootAtt.Name = "RightFootAttachment"
+
+        -- HumanoidRootPart
+        local rootPart = Instance.new("Part", rig)
+        rootPart.Anchored = true
+        rootPart.BottomSurface = Enum.SurfaceType.Smooth
+        rootPart.CanCollide = false
+        rootPart.Transparency = 1
+        rootPart.TopSurface = Enum.SurfaceType.Smooth
+        rootPart.CFrame = rootCF
+        rootPart.Size = Vector3.new(2, 2, 1)
+        rootPart.Rotation = rootRot
+        rootPart.Name = "HumanoidRootPart"
+        local rootAtt = Instance.new("Attachment", rootPart)
+        rootAtt.Name = "RootAttachment"
+        local rootJoint = Instance.new("Motor6D", rootPart)
+        rootJoint.MaxVelocity = 0.1
+        rootJoint.C1 = CFrame.new(Vector3.new(0, 0, 0), Vector3.new(0, -1, 0))
+        rootJoint.C0 = CFrame.new(Vector3.new(0, 0, 0), Vector3.new(0, -1, 0))
+        rootJoint.Name = "RootJoint"
+        rootJoint.Part0 = rootPart
+
+        -- Set camera to look at the rig
+        camera.CFrame = CFrame.new(Vector3.new(0, 1, 2.5), Vector3.new(0, 1, -5.5))
+
+        -- Apply player appearance
+        local playerDesc = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HumanoidDescription
+        if playerDesc then
+            humanoid:ApplyDescription(playerDesc)
+        else
+            local getDesc = Instance.new("HumanoidDescription")
+            Players:GetHumanoidDescriptionFromUserId(LocalPlayer.UserId):andThen(function(fetched)
+                humanoid:ApplyDescription(fetched)
+            end)
         end
-        for _, part in ipairs(charClone:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.Anchored = true
-                part.CanCollide = false
-            end
-        end
-        charClone.Parent = viewport
+
+        return world
     end
 
-    task.spawn(loadCharacter)
-    LocalPlayer.CharacterAdded:Connect(function()
-        task.wait(0.5)
-        loadCharacter()
-    end)
+    local avatarModel = buildRig()
+    avatarModel.Parent = viewport
 
     New("UICorner", {Name = "corner", CornerRadius = UDim.new(0.1, 0)}, viewport)
 
