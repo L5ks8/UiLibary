@@ -1,5 +1,5 @@
 -- GoonHub UI Library Mainframe
-return function(mainfunctions, components)
+return function(mainfunctions, components, profileCreator)
     local RunService = game:GetService("RunService")
     local TweenService = game:GetService("TweenService")
     local Library = {}
@@ -740,6 +740,49 @@ function Library:CreateWindow(config)
     -- Set flex behavior on footer
     if G2L["18"] and not G2L["18"]:FindFirstChildOfClass("UIFlexItem") then
         New("UIFlexItem", {FlexMode = Enum.UIFlexMode.None}, G2L["18"])
+    end
+
+    -- Setup Profile Modal if profileCreator is provided
+    if profileCreator then
+        local success, profileGui = pcall(profileCreator)
+        if success and profileGui then
+            local profileFrame = profileGui:FindFirstChild("Profile")
+            if profileFrame then
+                profileFrame.Parent = G2L["1"]
+                profileFrame.Visible = false
+                G2L["profile_modal"] = profileFrame
+                
+                -- Populate user info dynamically
+                local mainFrame = profileFrame:FindFirstChild("Main")
+                if mainFrame then
+                    local topFrame = mainFrame:FindFirstChild("Top")
+                    if topFrame then
+                        local avatarImage = topFrame:FindFirstChild("Profile")
+                        if avatarImage then
+                            avatarImage.Image = "rbxthumb://type=AvatarHeadShot&id=" .. userId .. "&w=420&h=420"
+                        end
+                        local info = topFrame:FindFirstChild("Information")
+                        if info then
+                            local infoDetails = info:FindFirstChild("Info")
+                            if infoDetails then
+                                local userText = infoDetails:FindFirstChild("Username")
+                                if userText then
+                                    userText.Text = "@" .. userName
+                                end
+                                local dispText = infoDetails:FindFirstChild("Display")
+                                if dispText then
+                                    dispText.Text = displayName
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            -- Destroy the temporary ScreenGui wrapper
+            pcall(function() profileGui:Destroy() end)
+        else
+            warn("Orbit Ui: Failed to load profile GUI.")
+        end
     end
 
     local Window = mainfunctions.BuildWindow(G2L, config, components)
