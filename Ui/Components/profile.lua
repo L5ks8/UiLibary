@@ -1,5 +1,4 @@
 return function(mainfunctions)
-    local TweenService = game:GetService("TweenService")
     local CollectionService = game:GetService("CollectionService")
     local New = mainfunctions.New
     local fonts = mainfunctions.GetFonts()
@@ -20,6 +19,7 @@ return function(mainfunctions)
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     }, targetParent)
 
+    -- Profile
     local profile = New("CanvasGroup", {
         ZIndex = 2,
         BorderSizePixel = 0,
@@ -43,6 +43,7 @@ return function(mainfunctions)
 
     New("UIPadding", {Name = "Padding"}, profile)
 
+    -- Loading text
     local loading = New("TextLabel", {
         BorderSizePixel = 0,
         AutoLocalize = false,
@@ -60,6 +61,72 @@ return function(mainfunctions)
         Position = UDim2.new(0.5, 0, 0.5, 0)
     }, profile)
 
+    -- Actions (close button top-right)
+    local actions = New("Frame", {
+        ZIndex = 5,
+        BorderSizePixel = 0,
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        AnchorPoint = Vector2.new(1, 0),
+        AutomaticSize = Enum.AutomaticSize.XY,
+        Position = UDim2.new(1, 0, 0, 0),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Name = "actions",
+        BackgroundTransparency = 1
+    }, profile)
+
+    New("UIPadding", {
+        PaddingTop = UDim.new(0, 14),
+        PaddingRight = UDim.new(0, 20),
+        Name = "Padding",
+        PaddingLeft = UDim.new(0, 20),
+        PaddingBottom = UDim.new(0, 14)
+    }, actions)
+
+    New("UIListLayout", {
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        Padding = UDim.new(0, 2),
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Name = "list",
+        FillDirection = Enum.FillDirection.Horizontal
+    }, actions)
+
+    local closeBtn = New("ImageButton", {
+        BorderSizePixel = 0,
+        ImageTransparency = 1,
+        BackgroundTransparency = 0.8,
+        BackgroundColor3 = Color3.fromRGB(13, 13, 13),
+        Size = UDim2.new(0, 22, 0, 22),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Name = "close"
+    }, actions)
+    CollectionService:AddTag(closeBtn, "OrbitModalCloseAction")
+
+    local closeIcon = New("ImageLabel", {
+        BorderSizePixel = 0,
+        ScaleType = Enum.ScaleType.Fit,
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        ImageTransparency = 0.5,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Image = "rbxassetid://11293981586",
+        Size = UDim2.new(0, 16, 0, 16),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        BackgroundTransparency = 1,
+        Name = "icon",
+        Position = UDim2.new(0.5, 0, 0.5, 0)
+    }, closeBtn)
+    New("UIScale", {Name = "scale"}, closeIcon)
+    New("UICorner", {Name = "corner", CornerRadius = UDim.new(0, 5)}, closeBtn)
+    New("UIScale", {Name = "scale"}, closeBtn)
+
+    closeBtn.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
+
+    -- SizeLimit
+    New("UISizeConstraint", {MinSize = Vector2.new(0, 300), Name = "SizeLimit"}, profile)
+
+    -- Main
     local main = New("CanvasGroup", {
         ZIndex = 2,
         BorderSizePixel = 0,
@@ -73,7 +140,7 @@ return function(mainfunctions)
 
     New("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Name = "List"}, main)
 
-    -- Top section
+    -- Top
     local top = New("Frame", {
         ZIndex = 50,
         BorderSizePixel = 0,
@@ -93,14 +160,6 @@ return function(mainfunctions)
         FillDirection = Enum.FillDirection.Horizontal
     }, top)
 
-    New("UIPadding", {
-        PaddingTop = UDim.new(0, 20),
-        PaddingRight = UDim.new(0, 24),
-        Name = "Padding",
-        PaddingLeft = UDim.new(0, 24),
-        PaddingBottom = UDim.new(0, 20)
-    }, top)
-
     local topAvatar = New("ImageLabel", {
         BorderSizePixel = 0,
         BackgroundColor3 = Color3.fromRGB(27, 27, 27),
@@ -109,7 +168,6 @@ return function(mainfunctions)
         BorderColor3 = Color3.fromRGB(0, 0, 0),
         Name = "Profile"
     }, top)
-
     New("UICorner", {Name = "Corner", CornerRadius = UDim.new(0, 16)}, topAvatar)
 
     -- Information
@@ -240,7 +298,16 @@ return function(mainfunctions)
 
     New("UICorner", {}, badges)
 
-    -- Extra/Fade
+    -- Top Padding
+    New("UIPadding", {
+        PaddingTop = UDim.new(0, 20),
+        PaddingRight = UDim.new(0, 24),
+        Name = "Padding",
+        PaddingLeft = UDim.new(0, 24),
+        PaddingBottom = UDim.new(0, 20)
+    }, top)
+
+    -- Extra / Fade
     local extra = New("Folder", {Name = "Extra"}, main)
 
     local fade = New("Frame", {
@@ -282,7 +349,7 @@ return function(mainfunctions)
         PaddingLeft = UDim.new(0.02, 0)
     }, container)
 
-    -- Left panel (viewport)
+    -- Left panel
     local leftPanel = New("Frame", {
         BorderSizePixel = 0,
         BackgroundColor3 = Color3.fromRGB(26, 26, 26),
@@ -293,6 +360,7 @@ return function(mainfunctions)
         BackgroundTransparency = 1
     }, container)
 
+    -- Viewport
     local viewport = New("ViewportFrame", {
         BorderSizePixel = 0,
         BackgroundColor3 = Color3.fromRGB(26, 26, 26),
@@ -307,7 +375,247 @@ return function(mainfunctions)
         Name = "Model"
     }, viewport)
 
-    -- Right panel (scroll)
+    New("UICorner", {Name = "corner", CornerRadius = UDim.new(0.1, 0)}, viewport)
+
+    -- Left info section (Account Age, Playtime)
+    New("UIListLayout", {
+        Padding = UDim.new(0, 15),
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Name = "List"
+    }, leftPanel)
+
+    local leftInfo = New("Frame", {
+        BorderSizePixel = 0,
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        Size = UDim2.new(1, 0, 0, 0),
+        Position = UDim2.new(0.5, 0, 0, 0),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Name = "info",
+        LayoutOrder = 1,
+        BackgroundTransparency = 1
+    }, leftPanel)
+    CollectionService:AddTag(leftInfo, "OrbitProfileCategory")
+
+    New("UIListLayout", {
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        Padding = UDim.new(0, 10),
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Name = "List",
+        FillDirection = Enum.FillDirection.Horizontal
+    }, leftInfo)
+
+    New("UIPadding", {
+        Name = "Padding",
+        PaddingBottom = UDim.new(0, 12)
+    }, leftInfo)
+
+    -- Account Age card
+    local ageCard = New("ImageButton", {
+        Active = false,
+        BorderSizePixel = 0,
+        AutoButtonColor = false,
+        BackgroundColor3 = Color3.fromRGB(23, 23, 23),
+        Selectable = false,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        AutomaticSize = Enum.AutomaticSize.X,
+        Size = UDim2.new(0, 100, 0, 75),
+        LayoutOrder = 2,
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Name = "Age"
+    }, leftInfo)
+
+    New("UICorner", {Name = "Corner", CornerRadius = UDim.new(0, 18)}, ageCard)
+    New("UIFlexItem", {Name = "Flex", FlexMode = Enum.UIFlexMode.Fill}, ageCard)
+
+    local ageName = New("TextLabel", {
+        BorderSizePixel = 0,
+        TextSize = 15,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTransparency = 0.8,
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 0, 0, 18),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Text = "Account Age",
+        AutomaticSize = Enum.AutomaticSize.X,
+        Name = "Name"
+    }, ageCard)
+    ageName:SetAttribute("Key", "orbit.modals.player.accountage")
+    CollectionService:AddTag(ageName, "OrbitTranslation")
+    New("UIPadding", {PaddingRight = UDim.new(0, 12), Name = "Padding"}, ageName)
+
+    local ageValue = New("TextLabel", {
+        TextWrapped = true,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        ZIndex = 2,
+        BorderSizePixel = 0,
+        AutoLocalize = false,
+        TextSize = 22,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Bottom,
+        TextScaled = true,
+        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+        FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0, 1),
+        Size = UDim2.new(0, 0, 0, 26),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Text = "NaN",
+        LayoutOrder = 1,
+        AutomaticSize = Enum.AutomaticSize.X,
+        Name = "Value",
+        Position = UDim2.new(0, 0, 1, 0)
+    }, ageCard)
+    New("UIPadding", {PaddingRight = UDim.new(0, 12), Name = "Padding"}, ageValue)
+
+    New("UIPadding", {
+        PaddingTop = UDim.new(0, 15),
+        PaddingRight = UDim.new(0, 17),
+        Name = "Padding",
+        PaddingLeft = UDim.new(0, 17),
+        PaddingBottom = UDim.new(0, 15)
+    }, ageCard)
+
+    -- Playtime card
+    local playtimeCard = New("ImageButton", {
+        Active = false,
+        BorderSizePixel = 0,
+        AutoButtonColor = false,
+        BackgroundColor3 = Color3.fromRGB(23, 23, 23),
+        Selectable = false,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        AutomaticSize = Enum.AutomaticSize.X,
+        Size = UDim2.new(0, 100, 0, 75),
+        LayoutOrder = 1,
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Name = "Playtime"
+    }, leftInfo)
+
+    New("UICorner", {Name = "Corner", CornerRadius = UDim.new(0, 18)}, playtimeCard)
+    New("UIFlexItem", {Name = "Flex", FlexMode = Enum.UIFlexMode.Fill}, playtimeCard)
+
+    local playtimeName = New("TextLabel", {
+        BorderSizePixel = 0,
+        TextSize = 15,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTransparency = 0.8,
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 0, 0, 18),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Text = "Playtime",
+        AutomaticSize = Enum.AutomaticSize.X,
+        Name = "Name"
+    }, playtimeCard)
+    playtimeName:SetAttribute("Key", "orbit.modals.player.playtime")
+    CollectionService:AddTag(playtimeName, "OrbitTranslation")
+    New("UIPadding", {PaddingRight = UDim.new(0, 12), Name = "Padding"}, playtimeName)
+
+    local playtimeValue = New("TextLabel", {
+        TextWrapped = true,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        ZIndex = 2,
+        BorderSizePixel = 0,
+        AutoLocalize = false,
+        TextSize = 22,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Bottom,
+        TextScaled = true,
+        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+        FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0, 1),
+        Size = UDim2.new(0, 0, 0, 26),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Text = "NaN",
+        LayoutOrder = 1,
+        AutomaticSize = Enum.AutomaticSize.X,
+        Name = "Value",
+        Position = UDim2.new(0, 0, 1, 0)
+    }, playtimeCard)
+    New("UIPadding", {PaddingRight = UDim.new(0, 12), Name = "Padding"}, playtimeValue)
+
+    New("UIPadding", {
+        PaddingTop = UDim.new(0, 15),
+        PaddingRight = UDim.new(0, 17),
+        Name = "Padding",
+        PaddingLeft = UDim.new(0, 17),
+        PaddingBottom = UDim.new(0, 15)
+    }, playtimeCard)
+
+    -- Inspect Avatar button
+    local inspectBtn = New("ImageButton", {
+        Active = false,
+        BorderSizePixel = 0,
+        AutoButtonColor = false,
+        BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+        Selectable = false,
+        Size = UDim2.new(1, 0, 0.1, 0),
+        LayoutOrder = 3,
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Name = "inspect_avatar"
+    }, leftPanel)
+
+    New("UICorner", {Name = "Corner", CornerRadius = UDim.new(0, 12)}, inspectBtn)
+
+    New("UIListLayout", {
+        Padding = UDim.new(0, 10),
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Name = "list",
+        FillDirection = Enum.FillDirection.Horizontal
+    }, inspectBtn)
+
+    New("UIPadding", {
+        PaddingRight = UDim.new(0, 12),
+        Name = "padding",
+        PaddingLeft = UDim.new(0, 12)
+    }, inspectBtn)
+
+    local inspectIcon = New("ImageLabel", {
+        BorderSizePixel = 0,
+        ScaleType = Enum.ScaleType.Fit,
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        ImageTransparency = 0.2,
+        Image = "rbxassetid://11422143750",
+        Size = UDim2.new(0, 17, 0, 17),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        BackgroundTransparency = 1,
+        LayoutOrder = 1,
+        Name = "Icon"
+    }, inspectBtn)
+    New("UIScale", {Name = "scale"}, inspectIcon)
+
+    local inspectLabel = New("TextLabel", {
+        BorderSizePixel = 0,
+        AutoLocalize = false,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTransparency = 0.2,
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        FontFace = fonts.med,
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0.27253, -20, 1, 0),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Text = "Inspect Avatar",
+        LayoutOrder = 2,
+        Name = "Name",
+        Position = UDim2.new(0.06649, 0, 0, 0)
+    }, inspectBtn)
+    inspectLabel:SetAttribute("Key", "orbit.modals.player.inspect")
+    CollectionService:AddTag(inspectLabel, "OrbitTranslation")
+    New("UIFlexItem", {Name = "flex", FlexMode = Enum.UIFlexMode.Fill}, inspectLabel)
+
+    -- Right panel (Scroll)
     local scroll = New("ScrollingFrame", {
         Active = true,
         BorderSizePixel = 0,
@@ -344,9 +652,8 @@ return function(mainfunctions)
     New("UIFlexItem", {Name = "Flex", FlexMode = Enum.UIFlexMode.Fill}, scroll)
 
     -- Helper: Category
-    local function createCategory(name, order, tag)
+    local function createCategory(name, order)
         local cat = New("Frame", {
-            Visible = false,
             BorderSizePixel = 0,
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
             AnchorPoint = Vector2.new(0.5, 0.5),
@@ -357,7 +664,7 @@ return function(mainfunctions)
             LayoutOrder = order,
             BackgroundTransparency = 1
         }, scroll)
-        CollectionService:AddTag(cat, tag or "OrbitProfileCategory")
+        CollectionService:AddTag(cat, "OrbitProfileCategory")
 
         New("UIListLayout", {
             HorizontalAlignment = Enum.HorizontalAlignment.Center,
@@ -374,7 +681,7 @@ return function(mainfunctions)
             PaddingBottom = UDim.new(0, 3)
         }, cat)
 
-        local header = New("Frame", {
+        local headerFrame = New("Frame", {
             BorderSizePixel = 0,
             BackgroundColor3 = Color3.fromRGB(49, 49, 49),
             AnchorPoint = Vector2.new(0.5, 0),
@@ -393,7 +700,7 @@ return function(mainfunctions)
             SortOrder = Enum.SortOrder.LayoutOrder,
             Name = "List",
             FillDirection = Enum.FillDirection.Horizontal
-        }, header)
+        }, headerFrame)
 
         local leftDiv = New("Frame", {
             BorderSizePixel = 0,
@@ -404,7 +711,7 @@ return function(mainfunctions)
             BorderColor3 = Color3.fromRGB(0, 0, 0),
             Name = "left",
             LayoutOrder = -999
-        }, header)
+        }, headerFrame)
         New("UIFlexItem", {Name = "Flex", FlexMode = Enum.UIFlexMode.Fill}, leftDiv)
 
         local headerLabel = New("TextLabel", {
@@ -420,7 +727,7 @@ return function(mainfunctions)
             LayoutOrder = 1,
             AutomaticSize = Enum.AutomaticSize.XY,
             Name = "header"
-        }, header)
+        }, headerFrame)
         headerLabel:SetAttribute("Key", "orbit.modals.player." .. name)
 
         local rightDiv = New("Frame", {
@@ -432,7 +739,7 @@ return function(mainfunctions)
             BorderColor3 = Color3.fromRGB(0, 0, 0),
             Name = "right",
             LayoutOrder = 999
-        }, header)
+        }, headerFrame)
         New("UIFlexItem", {Name = "Flex", FlexMode = Enum.UIFlexMode.Fill}, rightDiv)
 
         return cat
@@ -538,42 +845,30 @@ return function(mainfunctions)
         end
     end)
 
-    -- Advanced category (no buttons)
+    -- Advanced category
     local advancedCat = createCategory("advanced", 6)
     advancedCat.Visible = true
 
+    local advContent = New("Frame", {
+        BorderSizePixel = 0,
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        Size = UDim2.new(1, 0, 0, 0),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Name = "content",
+        LayoutOrder = 1,
+        BackgroundTransparency = 1
+    }, advancedCat)
+
+    New("UIGridLayout", {
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        CellSize = UDim2.new(0.5, -3, 0, 40),
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        CellPadding = UDim2.new(0, 6, 0, 6)
+    }, advContent)
 
     -- Loading done
     loading.Visible = false
-
-    -- Close button
-    local closeBtn = New("ImageButton", {
-        Name = "close",
-        BorderSizePixel = 0,
-        Size = UDim2.new(0, 22, 0, 22),
-        BackgroundTransparency = 0.8,
-        BackgroundColor3 = Color3.fromRGB(13, 13, 13),
-        Position = UDim2.new(1, -28, 0, 10),
-        AnchorPoint = Vector2.new(1, 0),
-        ZIndex = 100
-    }, profile)
-
-    New("ImageLabel", {
-        Name = "icon",
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-        Size = UDim2.new(0, 16, 0, 16),
-        BackgroundTransparency = 1,
-        BorderSizePixel = 0,
-        Image = "rbxassetid://11293981586"
-    }, closeBtn)
-
-    New("UICorner", {CornerRadius = UDim.new(0, 5)}, closeBtn)
-    New("UIScale", {}, closeBtn)
-
-    closeBtn.MouseButton1Click:Connect(function()
-        screenGui:Destroy()
-    end)
 
     return screenGui
 end
