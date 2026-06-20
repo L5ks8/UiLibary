@@ -505,12 +505,12 @@ return function(mainfunctions)
     local ageDays = LocalPlayer.AccountAge
     if ageDays then
         if ageDays < 30 then
-            ageValue.Text = ageDays .. "d"
+            ageValue.Text = ageDays .. "day"
         elseif ageDays < 365 then
-            ageValue.Text = math.floor(ageDays / 30) .. "m"
+            ageValue.Text = math.floor(ageDays / 30) .. "month"
         else
             local years = math.floor(ageDays / 365)
-            ageValue.Text = years .. "y"
+            ageValue.Text = years .. "year"
         end
     end
 
