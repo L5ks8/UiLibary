@@ -444,62 +444,319 @@ function Library:CreateWindow(config)
         Size = UDim2.new(1, 0, 0, 30),
         Position = UDim2.new(0, 0, 1, 0),
         AnchorPoint = Vector2.new(0, 1),
-        BackgroundColor3 = Color3.new(0, 0, 0),
+        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
         BackgroundTransparency = 0.9,
-        Name = "debug"
+        Name = "debug",
+        LayoutOrder = 4,
+        ClipsDescendants = true
     }, G2L["4"])
 
-    New("UIStroke", {Color = Color3.fromRGB(46, 46, 46)}, G2L["a1"])
+    -- divider (UIStroke)
+    New("UIStroke", {
+        Thickness = 1.5,
+        Color = Color3.fromRGB(46, 46, 46),
+        Name = "divider"
+    }, G2L["a1"])
+
+    -- list (UIListLayout)
+    New("UIListLayout", {
+        Padding = UDim.new(0, 6),
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        FillDirection = Enum.FillDirection.Horizontal,
+        Name = "list"
+    }, G2L["a1"])
+
+    -- padding (UIPadding)
+    New("UIPadding", {
+        PaddingTop = UDim.new(0.225, 0),
+        PaddingRight = UDim.new(0.03, 20),
+        PaddingLeft = UDim.new(0.03, 0),
+        PaddingBottom = UDim.new(0.3, 0),
+        Name = "padding"
+    }, G2L["a1"])
+
+    -- errors
+    local errorsFrame = New("Frame", {
+        Size = UDim2.new(0.06, 0, 1, 0),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        LayoutOrder = 1,
+        Name = "errors"
+    }, G2L["a1"])
 
     New("UIListLayout", {
         FillDirection = Enum.FillDirection.Horizontal,
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
         VerticalAlignment = Enum.VerticalAlignment.Center,
-        Padding = UDim.new(0, 15)
+        Padding = UDim.new(0, 8),
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Name = "list"
+    }, errorsFrame)
+
+    New("ImageLabel", {
+        BorderSizePixel = 0,
+        ImageColor3 = Color3.fromRGB(255, 81, 81),
+        Image = "rbxassetid://14563958666",
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        LayoutOrder = 1,
+        Name = "icon"
+    }, errorsFrame)
+
+    New("UIAspectRatioConstraint", {
+        Name = "aspect"
+    }, errorsFrame:FindFirstChild("icon"))
+
+    G2L["error_val"] = New("TextLabel", {
+        Text = "0",
+        TextColor3 = Color3.fromRGB(255, 81, 81),
+        TextWrapped = true,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        BorderSizePixel = 0,
+        TextSize = 16,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextScaled = true,
+        FontFace = fonts.reg,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 0, 1, 0),
+        LayoutOrder = 2,
+        Name = "value"
+    }, errorsFrame)
+
+    New("UIFlexItem", {
+        FlexMode = Enum.UIFlexMode.Fill,
+        Name = "flex"
+    }, G2L["error_val"])
+
+    New("UITextSizeConstraint", {
+        MaxTextSize = 13,
+        Name = "size"
+    }, G2L["error_val"])
+
+    -- warnings
+    local warningsFrame = New("Frame", {
+        Size = UDim2.new(0.06, 0, 1, 0),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        LayoutOrder = 2,
+        Name = "warnings"
     }, G2L["a1"])
 
-    New("UIPadding", {PaddingLeft = UDim.new(0, 18)}, G2L["a1"])
+    New("UIListLayout", {
+        FillDirection = Enum.FillDirection.Horizontal,
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        Padding = UDim.new(0, 8),
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Name = "list"
+    }, warningsFrame)
 
-    local function CreateStatLabel(labelTitle, color)
-        local frame = New("Frame", {
-            AutomaticSize = Enum.AutomaticSize.XY,
-            BackgroundTransparency = 1
-        }, G2L["a1"])
-
-        New("UIListLayout", {
-            FillDirection = Enum.FillDirection.Horizontal,
-            Padding = UDim.new(0, 4)
-        }, frame)
-
-        New("TextLabel", {
-            Text = labelTitle,
-            TextColor3 = color or Color3.fromRGB(255, 255, 81),
-            FontFace = fonts.med,
-            TextSize = 14,
-            BackgroundTransparency = 1,
-            AutomaticSize = Enum.AutomaticSize.X
-        }, frame)
-
-        return New("TextLabel", {
-            Text = "--",
-            TextColor3 = Color3.new(1, 1, 1),
-            FontFace = fonts.med,
-            TextSize = 14,
-            BackgroundTransparency = 1,
-            AutomaticSize = Enum.AutomaticSize.X
-        }, frame)
-    end
-
-    G2L["mem_label"] = CreateStatLabel("Memory Usage:")
-    G2L["ping_label"] = CreateStatLabel("Avg. Ping:")
-
-    G2L["fps_label"] = New("TextLabel", {
-        Name = "fps",
-        Text = "FPS: --",
-        FontFace = fonts.med,
-        TextSize = 14,
-        TextColor3 = Color3.fromRGB(255, 255, 255),
+    New("ImageLabel", {
+        BorderSizePixel = 0,
+        ImageColor3 = Color3.fromRGB(255, 255, 81),
+        Image = "rbxassetid://71503984286896",
+        Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
-        AutomaticSize = Enum.AutomaticSize.XY
+        LayoutOrder = 1,
+        Name = "icon"
+    }, warningsFrame)
+
+    New("UIAspectRatioConstraint", {
+        Name = "aspect"
+    }, warningsFrame:FindFirstChild("icon"))
+
+    G2L["warning_val"] = New("TextLabel", {
+        Text = "0",
+        TextColor3 = Color3.fromRGB(255, 255, 81),
+        TextWrapped = true,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        BorderSizePixel = 0,
+        TextSize = 16,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextScaled = true,
+        FontFace = fonts.reg,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 0, 1, 0),
+        LayoutOrder = 2,
+        Name = "value"
+    }, warningsFrame)
+
+    New("UIFlexItem", {
+        FlexMode = Enum.UIFlexMode.Fill,
+        Name = "flex"
+    }, G2L["warning_val"])
+
+    New("UITextSizeConstraint", {
+        MaxTextSize = 13,
+        Name = "size"
+    }, G2L["warning_val"])
+
+    -- memory
+    local memoryFrame = New("Frame", {
+        Size = UDim2.new(0.2, 0, 1, 0),
+        AutomaticSize = Enum.AutomaticSize.X,
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        LayoutOrder = 3,
+        Name = "memory"
+    }, G2L["a1"])
+
+    New("UIListLayout", {
+        FillDirection = Enum.FillDirection.Horizontal,
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        Padding = UDim.new(0.05, 0),
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Name = "list"
+    }, memoryFrame)
+
+    New("TextLabel", {
+        Text = "Memory Usage:",
+        TextColor3 = Color3.fromRGB(255, 255, 81),
+        TextWrapped = true,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        BorderSizePixel = 0,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextScaled = true,
+        FontFace = fonts.reg,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 0, 1, 0),
+        LayoutOrder = 1,
+        AutomaticSize = Enum.AutomaticSize.X,
+        Name = "label"
+    }, memoryFrame)
+
+    New("UITextSizeConstraint", {
+        MaxTextSize = 14,
+        Name = "size"
+    }, memoryFrame:FindFirstChild("label"))
+
+    G2L["mem_label"] = New("TextLabel", {
+        Text = "0 MB",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextWrapped = true,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        BorderSizePixel = 0,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextScaled = true,
+        FontFace = fonts.reg,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 0, 1, 0),
+        LayoutOrder = 2,
+        AutomaticSize = Enum.AutomaticSize.X,
+        Name = "value"
+    }, memoryFrame)
+
+    New("UITextSizeConstraint", {
+        MaxTextSize = 14,
+        Name = "size"
+    }, G2L["mem_label"])
+
+    -- ping
+    local pingFrame = New("Frame", {
+        Size = UDim2.new(0.2, 0, 1, 0),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        LayoutOrder = 4,
+        Name = "ping"
+    }, G2L["a1"])
+
+    New("UIListLayout", {
+        FillDirection = Enum.FillDirection.Horizontal,
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        Padding = UDim.new(0.05, 0),
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Name = "list"
+    }, pingFrame)
+
+    New("TextLabel", {
+        Text = "Avg. Ping:",
+        TextColor3 = Color3.fromRGB(255, 255, 81),
+        TextWrapped = true,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        BorderSizePixel = 0,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextScaled = true,
+        FontFace = fonts.reg,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 0, 1, 0),
+        LayoutOrder = 1,
+        AutomaticSize = Enum.AutomaticSize.X,
+        Name = "label"
+    }, pingFrame)
+
+    New("UITextSizeConstraint", {
+        MaxTextSize = 14,
+        Name = "size"
+    }, pingFrame:FindFirstChild("label"))
+
+    G2L["ping_label"] = New("TextLabel", {
+        Text = "0 ms",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextWrapped = true,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        BorderSizePixel = 0,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextScaled = true,
+        FontFace = fonts.reg,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 0, 1, 0),
+        LayoutOrder = 2,
+        AutomaticSize = Enum.AutomaticSize.X,
+        Name = "value"
+    }, pingFrame)
+
+    New("UITextSizeConstraint", {
+        MaxTextSize = 14,
+        Name = "size"
+    }, G2L["ping_label"])
+
+    -- space
+    local spaceFrame = New("Frame", {
+        Size = UDim2.new(0, 0, 1, 0),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        LayoutOrder = 5,
+        Name = "space"
+    }, G2L["a1"])
+
+    New("UIFlexItem", {
+        FlexMode = Enum.UIFlexMode.Fill,
+        Name = "flex"
+    }, spaceFrame)
+
+    -- fps
+    G2L["fps_label"] = New("TextLabel", {
+        Text = "FPS: 0.0/s",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        BorderSizePixel = 0,
+        TextSize = 14,
+        FontFace = fonts.reg,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 0, 1, 0),
+        LayoutOrder = 6,
+        AutomaticSize = Enum.AutomaticSize.X,
+        Name = "fps"
+    }, G2L["a1"])
+
+    -- region
+    G2L["region_label"] = New("TextLabel", {
+        Text = "Region: N/A",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        BorderSizePixel = 0,
+        TextSize = 14,
+        FontFace = fonts.reg,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 0, 1, 0),
+        LayoutOrder = 7,
+        AutomaticSize = Enum.AutomaticSize.X,
+        Name = "region"
     }, G2L["a1"])
 
     -- Set flex behavior on footer
