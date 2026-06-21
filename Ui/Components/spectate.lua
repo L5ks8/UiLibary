@@ -9,7 +9,7 @@ return function(mainfunctions, components)
     return function(targetPlayer, onClose)
         local screenGui = New("ScreenGui", {
             Name = "Spectate",
-            ZIndex = 10,
+            DisplayOrder = 10,
             ZIndexBehavior = Enum.ZIndexBehavior.Sibling
         }, targetParent)
 

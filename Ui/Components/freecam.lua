@@ -24,7 +24,7 @@ return function(mainfunctions, components)
     return function(onClose)
         local screenGui = New("ScreenGui", {
             Name = "Freecam",
-            ZIndex = 10,
+            DisplayOrder = 10,
             ZIndexBehavior = Enum.ZIndexBehavior.Sibling
         }, targetParent)
 
