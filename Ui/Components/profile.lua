@@ -10,6 +10,10 @@ return function(mainfunctions)
         error("Orbit UI: Could not locate a valid GUI parent container.")
     end
 
+    -- Show loading screen
+    local loadingModule = script.Parent:FindFirstChild("loading")
+    local loadingScreen = loadingModule and require(loadingModule)(mainfunctions)
+
     local userId = LocalPlayer and LocalPlayer.UserId or 0
     local displayName = LocalPlayer and LocalPlayer.DisplayName or "Offline Developer"
     local userName = LocalPlayer and LocalPlayer.Name or "dev"
@@ -1326,6 +1330,9 @@ return function(mainfunctions)
 
     -- Loading done
     loading.Visible = false
+    if loadingScreen then
+        loadingScreen:Close()
+    end
 
     -- Open animation
     TweenService:Create(scale, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Scale = 1}):Play()
