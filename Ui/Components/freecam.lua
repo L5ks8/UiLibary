@@ -282,6 +282,29 @@ return function(mainfunctions, components)
             }
         }, closeStroke)
 
+        -- Drag handle
+        local dragActive = false
+        local dragStart = Vector2.new()
+        local dragPos = UDim2.new()
+        topBar.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragActive = true
+                dragStart = input.Position
+                dragPos = UDim2.new(container.Position.X.Scale, container.Position.X.Offset, container.Position.Y.Scale, container.Position.Y.Offset)
+            end
+        end)
+        topBar.InputChanged:Connect(function(input)
+            if not dragActive then return end
+            if input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then return end
+            local delta = input.Position - dragStart
+            container.Position = UDim2.new(dragPos.X.Scale, dragPos.X.Offset + delta.X, dragPos.Y.Scale, dragPos.Y.Offset + delta.Y)
+        end)
+        topBar.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragActive = false
+            end
+        end)
+
         -- Bottom resize handle
         local bottomBar = New("Frame", {
             BorderSizePixel = 0,
@@ -464,7 +487,10 @@ return function(mainfunctions, components)
 
             function Input.Pan(dt)
                 local kGamepad = Vector2.new(thumbstickCurve(gamepad.Thumbstick2.Y), thumbstickCurve(-gamepad.Thumbstick2.X)) * PAN_GAMEPAD_SPEED
-                local kMouse = mouse.Delta * PAN_MOUSE_SPEED
+                local kMouse = Vector2.new()
+                if rightClickHeld then
+                    kMouse = mouse.Delta * PAN_MOUSE_SPEED
+                end
                 mouse.Delta = Vector2.new()
                 return kGamepad + kMouse
             end
@@ -487,7 +513,10 @@ return function(mainfunctions, components)
             local function MousePan(action, state, input)
                 local delta = input.Delta
                 mouse.Delta = Vector2.new(-delta.y, -delta.x)
-                return Enum.ContextActionResult.Sink
+                if rightClickHeld then
+                    return Enum.ContextActionResult.Sink
+                end
+                return Enum.ContextActionResult.Pass
             end
             local function Thumb(action, state, input)
                 gamepad[input.KeyCode.Name] = input.Position
@@ -582,9 +611,7 @@ return function(mainfunctions, components)
                 cameraCFrame = Camera.CFrame
                 cameraFocus = Camera.Focus
                 mouseIconEnabled = UserInputService.MouseIconEnabled
-                UserInputService.MouseIconEnabled = false
                 mouseBehavior = UserInputService.MouseBehavior
-                UserInputService.MouseBehavior = Enum.MouseBehavior.Default
             end
 
             function PlayerState.Pop()
@@ -605,12 +632,32 @@ return function(mainfunctions, components)
                     Camera.CFrame = cameraCFrame
                     Camera.Focus = cameraFocus
                 end
-                UserInputService.MouseIconEnabled = mouseIconEnabled ~= nil and mouseIconEnabled or true
-                UserInputService.MouseBehavior = mouseBehavior or Enum.MouseBehavior.Default
+                if mouseIconEnabled ~= nil then UserInputService.MouseIconEnabled = mouseIconEnabled end
+                if mouseBehavior then UserInputService.MouseBehavior = mouseBehavior end
             end
         end
 
         local freecamEnabled = false
+        local rightClickHeld = false
+        local rcBeganConn = UserInputService.InputBegan:Connect(function(input, gp)
+            if gp then return end
+            if input.UserInputType == Enum.UserInputType.MouseButton2 and freecamEnabled then
+                rightClickHeld = true
+                UserInputService.MouseIconEnabled = false
+                UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+            end
+        end)
+        local rcEndedConn = UserInputService.InputEnded:Connect(function(input, gp)
+            if gp then return end
+            if input.UserInputType == Enum.UserInputType.MouseButton2 then
+                rightClickHeld = false
+                if freecamEnabled then
+                    UserInputService.MouseIconEnabled = true
+                    UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+                end
+            end
+        end)
+
         local inactiveStatus = New("Frame", {
             BorderSizePixel = 0,
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -752,6 +799,11 @@ return function(mainfunctions, components)
 
         powerBtn.MouseButton1Click:Connect(function()
             if freecamEnabled then
+                if rightClickHeld then
+                    rightClickHeld = false
+                    UserInputService.MouseIconEnabled = true
+                    UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+                end
                 Input.StopCapture()
                 RunService:UnbindFromRenderStep("Freecam")
                 PlayerState.Pop()
@@ -838,6 +890,11 @@ return function(mainfunctions, components)
 
         -- Close logic
         local function close()
+            if rightClickHeld then
+                rightClickHeld = false
+                UserInputService.MouseIconEnabled = true
+                UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+            end
             if freecamEnabled then
                 Input.StopCapture()
                 RunService:UnbindFromRenderStep("Freecam")
@@ -845,6 +902,8 @@ return function(mainfunctions, components)
                 PlayerState.Pop()
             end
             RunService:UnbindFromRenderStep("FreecamOrientation")
+            rcBeganConn:Disconnect()
+            rcEndedConn:Disconnect()
             if onClose then onClose() end
             local closeTween = TweenService:Create(containerScale, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Scale = 0})
             closeTween.Completed:Connect(function()

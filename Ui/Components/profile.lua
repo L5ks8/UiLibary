@@ -1450,7 +1450,7 @@ return function(mainfunctions, components)
     }, advContent)
 
     New("UIListLayout", {
-        Padding = UDim.new(0, 0),
+        Padding = UDim.new(0, 6),
         VerticalAlignment = Enum.VerticalAlignment.Center,
         SortOrder = Enum.SortOrder.LayoutOrder,
         Name = "List",
