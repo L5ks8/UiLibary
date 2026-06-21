@@ -1409,9 +1409,10 @@ return function(mainfunctions, components)
                     AutoLocalize = false,
                     TextSize = 14,
                     TextXAlignment = Enum.TextXAlignment.Left,
-                    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                    BackgroundColor3 = Color3.fromRGB(41, 41, 41),
                     FontFace = fonts.reg,
-                    TextColor3 = Color3.fromRGB(200, 200, 200),
+                    TextColor3 = Color3.fromRGB(255, 255, 255),
+                    TextTransparency = 0.5,
                     Size = UDim2.new(1, 0, 0, 28),
                     BorderColor3 = Color3.fromRGB(0, 0, 0),
                     Text = player.Name,
@@ -1419,16 +1420,45 @@ return function(mainfunctions, components)
                     BackgroundTransparency = 1
                 }, playerListFrame)
                 New("UICorner", {Name = "Corner", CornerRadius = UDim.new(0, 8)}, btn)
+                local stroke = New("UIStroke", {
+                    Name = "SelectionStroke",
+                    Color = Color3.new(1, 1, 1),
+                    Thickness = 1.5,
+                    Transparency = 1,
+                    ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                }, btn)
+                local gradient = New("UIGradient", {
+                    Transparency = NumberSequence.new({
+                        NumberSequenceKeypoint.new(0, 1),
+                        NumberSequenceKeypoint.new(0.45, 0),
+                        NumberSequenceKeypoint.new(0.55, 0),
+                        NumberSequenceKeypoint.new(1, 1)
+                    })
+                }, stroke)
+                mainfunctions.RegisterGradient(gradient, 6)
                 btn.MouseButton1Click:Connect(function()
                     selectedPlayer = player
                     for _, b in ipairs(playerListFrame:GetChildren()) do
                         if b:IsA("TextButton") then
-                            b.BackgroundTransparency = 1
-                            b.TextColor3 = Color3.fromRGB(200, 200, 200)
+                            local s = b:FindFirstChild("SelectionStroke")
+                            TweenService:Create(b, TweenInfo.new(0.35, Enum.EasingStyle.Quart), {
+                                BackgroundTransparency = 1,
+                                TextTransparency = 0.5
+                            }):Play()
+                            if s then
+                                TweenService:Create(s, TweenInfo.new(0.35), {
+                                    Transparency = 1
+                                }):Play()
+                            end
                         end
                     end
-                    btn.BackgroundTransparency = 0.6
-                    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    TweenService:Create(btn, TweenInfo.new(0.35, Enum.EasingStyle.Quart), {
+                        BackgroundTransparency = 0,
+                        TextTransparency = 0
+                    }):Play()
+                    TweenService:Create(stroke, TweenInfo.new(0.35), {
+                        Transparency = 0
+                    }):Play()
                 end)
             end
         end

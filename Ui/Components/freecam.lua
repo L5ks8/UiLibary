@@ -24,6 +24,7 @@ return function(mainfunctions, components)
     return function(onClose)
         local screenGui = New("ScreenGui", {
             Name = "Freecam",
+            ZIndex = 10,
             ZIndexBehavior = Enum.ZIndexBehavior.Sibling
         }, targetParent)
 
@@ -640,7 +641,6 @@ return function(mainfunctions, components)
         end
 
         local rcBeganConn = UserInputService.InputBegan:Connect(function(input, gp)
-            if gp then return end
             if input.UserInputType == Enum.UserInputType.MouseButton2 and freecamEnabled then
                 rightClickHeld = true
                 UserInputService.MouseIconEnabled = false
@@ -648,7 +648,6 @@ return function(mainfunctions, components)
             end
         end)
         local rcEndedConn = UserInputService.InputEnded:Connect(function(input, gp)
-            if gp then return end
             if input.UserInputType == Enum.UserInputType.MouseButton2 then
                 rightClickHeld = false
                 if freecamEnabled then
