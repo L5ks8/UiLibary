@@ -608,12 +608,12 @@ return function(mainfunctions, components)
             -- Body part colors
             local bodyColors = playerChar:FindFirstChildOfClass("BodyColors")
             if bodyColors then
-                head.Color = bodyColors.HeadColor
-                torso.Color = bodyColors.TorsoColor
-                leftArm.Color = bodyColors.LeftArmColor
-                rightArm.Color = bodyColors.RightArmColor
-                leftLeg.Color = bodyColors.LeftLegColor
-                rightLeg.Color = bodyColors.RightLegColor
+                head.Color = bodyColors.HeadColor.Color
+                torso.Color = bodyColors.TorsoColor.Color
+                leftArm.Color = bodyColors.LeftArmColor.Color
+                rightArm.Color = bodyColors.RightArmColor.Color
+                leftLeg.Color = bodyColors.LeftLegColor.Color
+                rightLeg.Color = bodyColors.RightLegColor.Color
             else
                 local function copyColor(rigPart, charName)
                     local charPart = playerChar:FindFirstChild(charName)
@@ -751,7 +751,7 @@ return function(mainfunctions, components)
                 for _, data in ipairs({{"Head", "HeadColor"}, {"Torso", "TorsoColor"}, {"Left Arm", "LeftArmColor"}, {"Right Arm", "RightArmColor"}, {"Left Leg", "LeftLegColor"}, {"Right Leg", "RightLegColor"}}) do
                     local rigPart = rig:FindFirstChild(data[1])
                     if rigPart and rigPart:IsA("BasePart") then
-                        rigPart.Color = bodyColors[data[2]]
+                        rigPart.Color = bodyColors[data[2]].Color
                     end
                 end
             else
