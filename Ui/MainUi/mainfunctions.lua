@@ -296,6 +296,13 @@ function UIFunctions.InitBehavior(G2L, window, closeCallback)
         if closeCallback then 
             pcall(closeCallback) 
         end
+        local parent = G2L["1"].Parent
+        if parent then
+            local profileGui = parent:FindFirstChild("Profile")
+            if profileGui then
+                profileGui:Destroy()
+            end
+        end
         local closeTween = TweenService:Create(
             G2L["2"], 
             TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.In), 
