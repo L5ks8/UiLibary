@@ -163,29 +163,41 @@ return function(mainfunctions, components)
         -- Camera follow logic
         local isFollowing = false
         local followConnection = nil
-        local unfollowTimeout = nil
+        local inputConn = nil
         local lastUserInput = 0
         local returnDelay = 3
-        local inputConn = nil
+        local followPos = nil
+        local followLook = nil
 
         local function stopFollow()
             if followConnection then
                 followConnection:Disconnect()
                 followConnection = nil
             end
-            if unfollowTimeout then
-                unfollowTimeout:Cancel()
-                unfollowTimeout = nil
-            end
             if inputConn then
                 inputConn:Disconnect()
                 inputConn = nil
             end
             isFollowing = false
+            followPos = nil
+            followLook = nil
         end
 
         local function startFollow()
             stopFollow()
+            local char = targetPlayer.Character
+            if not char then return end
+            local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
+            if not root then return end
+
+            Camera.CameraType = Enum.CameraType.Scriptable
+            local targetCF = root.CFrame
+            local targetPos = targetCF.p + Vector3.new(0, 2, 0)
+            local lookDir = targetCF.LookVector
+            followPos = targetPos - lookDir * 8 + Vector3.new(0, 4, 0)
+            followLook = targetPos
+            Camera.CFrame = CFrame.new(followPos, followLook)
+
             isFollowing = true
             lastUserInput = os.clock()
 
@@ -196,26 +208,29 @@ return function(mainfunctions, components)
             end)
 
             followConnection = RunService.RenderStepped:Connect(function(dt)
-                local char = targetPlayer.Character
-                if not char then
+                local character = targetPlayer.Character
+                if not character then
                     stopFollow()
                     return
                 end
-                local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
-                if not root then return end
+                local rootPart = character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("Torso") or character:FindFirstChild("UpperTorso")
+                if not rootPart then return end
 
-                local targetCF = root.CFrame
-                local targetPos = targetCF.p + Vector3.new(0, 2, 0)
-                local lookDir = targetCF.LookVector
-                local behindPos = targetPos - lookDir * 8 + Vector3.new(0, 4, 0)
+                local tCF = rootPart.CFrame
+                local tPos = tCF.p + Vector3.new(0, 2, 0)
+                local lDir = tCF.LookVector
+                local idealPos = tPos - lDir * 8 + Vector3.new(0, 4, 0)
+                local smoothDt = math.min(dt * 4, 1)
 
                 local timeSinceInput = os.clock() - lastUserInput
                 if timeSinceInput < returnDelay then
-                    Camera.CFrame = CFrame.new(Camera.CFrame.p, targetPos)
+                    followPos = followPos:Lerp(idealPos, smoothDt * 0.5)
+                    followLook = followLook:Lerp(tPos, smoothDt * 0.5)
+                    Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.p, tPos), smoothDt * 2)
                 else
-                    local smoothPos = Camera.CFrame:Lerp(CFrame.new(behindPos, targetPos), dt * 3)
-                    Camera.CFrame = smoothPos
-                    Camera.CameraSubject = root
+                    followPos = followPos:Lerp(idealPos, smoothDt)
+                    followLook = followLook:Lerp(tPos, smoothDt)
+                    Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(followPos, followLook), smoothDt * 2)
                 end
             end)
         end
