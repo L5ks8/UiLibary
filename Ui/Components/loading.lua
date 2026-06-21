@@ -94,7 +94,7 @@ return function(mainfunctions)
             spinConn:Disconnect()
             return
         end
-        spinIcon.Rotation = (spinIcon.Rotation + 6) % 360
+        spinIcon.Rotation = (spinIcon.Rotation + 2) % 360
     end)
 
     local loading = {}
