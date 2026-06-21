@@ -1534,6 +1534,14 @@ return function(mainfunctions, components)
     end
 
     local spectateInstance = nil
+    local mainGui = targetParent:FindFirstChild("UiLibary")
+
+    local function setMenusVisible(visible)
+        screenGui.Enabled = visible
+        if mainGui then
+            mainGui.Enabled = visible
+        end
+    end
 
     createActionBtn(spectatePanel, "Spectate", "rbxassetid://11963367322", function()
         if not selectedPlayer then return end
@@ -1544,15 +1552,15 @@ return function(mainfunctions, components)
         if selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("Humanoid") then
             workspace.CurrentCamera.CameraSubject = selectedPlayer.Character.Humanoid
             workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
-            screenGui.Enabled = false
+            setMenusVisible(false)
             local ok, result = pcall(components.spectate, mainfunctions, components)
             if ok then
                 spectateInstance = result(selectedPlayer, function()
                     spectateInstance = nil
-                    screenGui.Enabled = true
+                    setMenusVisible(true)
                 end)
             else
-                screenGui.Enabled = true
+                setMenusVisible(true)
             end
         end
     end)
