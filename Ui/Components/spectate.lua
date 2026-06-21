@@ -181,6 +181,11 @@ return function(mainfunctions, components)
             isFollowing = false
             followPos = nil
             followLook = nil
+            local char = targetPlayer.Character
+            if char and char:FindFirstChild("Humanoid") then
+                Camera.CameraSubject = char.Humanoid
+                Camera.CameraType = Enum.CameraType.Custom
+            end
         end
 
         local function startFollow()
