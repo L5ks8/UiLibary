@@ -390,7 +390,7 @@ function Library:CreateWindow(config)
             profileInstance:Destroy()
             profileInstance = nil
         else
-            local success, result = pcall(components.profile, mainfunctions)
+            local success, result = pcall(components.profile, mainfunctions, components)
             if success then
                 profileInstance = result
             else

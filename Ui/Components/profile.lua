@@ -1,4 +1,4 @@
-return function(mainfunctions)
+return function(mainfunctions, components)
     local CollectionService = game:GetService("CollectionService")
     local New = mainfunctions.New
     local fonts = mainfunctions.GetFonts()
@@ -11,8 +11,13 @@ return function(mainfunctions)
     end
 
     -- Show loading screen
-    local loadingModule = script.Parent:FindFirstChild("loading")
-    local loadingScreen = loadingModule and require(loadingModule)(mainfunctions)
+    local loadingScreen
+    if components and components.loading then
+        local ok, loadScr = pcall(components.loading, mainfunctions)
+        if ok and loadScr then
+            loadingScreen = loadScr
+        end
+    end
 
     local userId = LocalPlayer and LocalPlayer.UserId or 0
     local displayName = LocalPlayer and LocalPlayer.DisplayName or "Offline Developer"
