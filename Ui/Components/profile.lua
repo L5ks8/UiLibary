@@ -606,18 +606,28 @@ return function(mainfunctions, components)
                 pants.PantsTemplate = charPants.PantsTemplate
             end
             -- Body part colors
-            local function copyColor(rigPart, charName)
-                local charPart = playerChar:FindFirstChild(charName)
-                if charPart and charPart:IsA("BasePart") and rigPart then
-                    rigPart.Color = charPart.Color
+            local bodyColors = playerChar:FindFirstChildOfClass("BodyColors")
+            if bodyColors then
+                head.Color = bodyColors.HeadColor
+                torso.Color = bodyColors.TorsoColor
+                leftArm.Color = bodyColors.LeftArmColor
+                rightArm.Color = bodyColors.RightArmColor
+                leftLeg.Color = bodyColors.LeftLegColor
+                rightLeg.Color = bodyColors.RightLegColor
+            else
+                local function copyColor(rigPart, charName)
+                    local charPart = playerChar:FindFirstChild(charName)
+                    if charPart and charPart:IsA("BasePart") and rigPart then
+                        rigPart.Color = charPart.Color
+                    end
                 end
+                copyColor(head, "Head")
+                copyColor(torso, "Torso")
+                copyColor(leftArm, "Left Arm")
+                copyColor(rightArm, "Right Arm")
+                copyColor(leftLeg, "Left Leg")
+                copyColor(rightLeg, "Right Leg")
             end
-            copyColor(head, "Head")
-            copyColor(torso, "Torso")
-            copyColor(leftArm, "Left Arm")
-            copyColor(rightArm, "Right Arm")
-            copyColor(leftLeg, "Left Leg")
-            copyColor(rightLeg, "Right Leg")
             -- Face decal
             local charHead = playerChar:FindFirstChild("Head")
             if charHead and faceDecal then
@@ -632,6 +642,12 @@ return function(mainfunctions, components)
         -- Load hair & accessories
         local char = LocalPlayer.Character
         if char then
+            -- Remove old accessories from rig
+            for _, child in ipairs(rig:GetChildren()) do
+                if child:IsA("Accessory") or (child:IsA("Model") and child:FindFirstChild("Handle")) then
+                    child:Destroy()
+                end
+            end
             for _, child in ipairs(char:GetChildren()) do
                 if child:IsA("Accessory") or (child:IsA("Model") and child:FindFirstChild("Handle")) then
                     local cloned = child:Clone()
@@ -667,6 +683,48 @@ return function(mainfunctions, components)
     local avatarModel = buildRig()
     avatarModel.Parent = viewport
 
+    -- Reload accessories after a short delay (covers late-loading accessories)
+    task.spawn(function()
+        task.wait(1)
+        local char = LocalPlayer.Character
+        if not char then return end
+        local rigModel = viewport:FindFirstChildOfClass("WorldModel")
+        if not rigModel then return end
+        local rig = rigModel:FindFirstChild("Rig")
+        if not rig then return end
+        for _, child in ipairs(rig:GetChildren()) do
+            if child:IsA("Accessory") or (child:IsA("Model") and child:FindFirstChild("Handle")) then
+                child:Destroy()
+            end
+        end
+        for _, child in ipairs(char:GetChildren()) do
+            if child:IsA("Accessory") or (child:IsA("Model") and child:FindFirstChild("Handle")) then
+                local cloned = child:Clone()
+                cloned.Parent = rig
+                local handle = cloned:FindFirstChild("Handle")
+                if handle and handle:IsA("BasePart") then
+                    for _, j in ipairs(handle:GetChildren()) do
+                        if j:IsA("JointInstance") then j:Destroy() end
+                    end
+                    handle.Anchored = true
+                    handle.CanCollide = false
+                    local originalHandle = child:FindFirstChild("Handle")
+                    if originalHandle and originalHandle:IsA("BasePart") then
+                        local originalWeld = originalHandle:FindFirstChildOfClass("Weld") or originalHandle:FindFirstChildOfClass("Motor6D")
+                        if originalWeld and originalWeld.Part1 and originalWeld.Part1:IsA("BasePart") then
+                            local relCF = originalWeld.Part1.CFrame:ToObjectSpace(originalHandle.CFrame)
+                            local targetName = originalWeld.Part1.Name
+                            local rigPart = rig:FindFirstChild(targetName)
+                            if rigPart and rigPart:IsA("BasePart") then
+                                handle.CFrame = rigPart.CFrame:ToWorldSpace(relCF)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end)
+
     -- Re-apply appearance when character respawns
     LocalPlayer.CharacterAdded:Connect(function()
         task.wait(0.5)
@@ -687,20 +745,30 @@ return function(mainfunctions, components)
         if charPants and pantsInst then
             pantsInst.PantsTemplate = charPants.PantsTemplate
         end
-        -- Body part colors
-        local function setPartColor(name)
-            local charPart = char:FindFirstChild(name)
-            local rigPart = rig:FindFirstChild(name)
-            if charPart and charPart:IsA("BasePart") and rigPart and rigPart:IsA("BasePart") then
-                rigPart.Color = charPart.Color
+            -- Body part colors
+            local bodyColors = char:FindFirstChildOfClass("BodyColors")
+            if bodyColors then
+                for _, data in ipairs({{"Head", "HeadColor"}, {"Torso", "TorsoColor"}, {"Left Arm", "LeftArmColor"}, {"Right Arm", "RightArmColor"}, {"Left Leg", "LeftLegColor"}, {"Right Leg", "RightLegColor"}}) do
+                    local rigPart = rig:FindFirstChild(data[1])
+                    if rigPart and rigPart:IsA("BasePart") then
+                        rigPart.Color = bodyColors[data[2]]
+                    end
+                end
+            else
+                local function setPartColor(name)
+                    local charPart = char:FindFirstChild(name)
+                    local rigPart = rig:FindFirstChild(name)
+                    if charPart and charPart:IsA("BasePart") and rigPart and rigPart:IsA("BasePart") then
+                        rigPart.Color = charPart.Color
+                    end
+                end
+                setPartColor("Head")
+                setPartColor("Torso")
+                setPartColor("Left Arm")
+                setPartColor("Right Arm")
+                setPartColor("Left Leg")
+                setPartColor("Right Leg")
             end
-        end
-        setPartColor("Head")
-        setPartColor("Torso")
-        setPartColor("Left Arm")
-        setPartColor("Right Arm")
-        setPartColor("Left Leg")
-        setPartColor("Right Leg")
         -- Face decal
         local charHead = char:FindFirstChild("Head")
         if charHead then
@@ -712,6 +780,12 @@ return function(mainfunctions, components)
                     rigDecal.Texture = charDecal.Texture
                     rigDecal.ColorMap = charDecal.ColorMap
                 end
+            end
+        end
+        -- Remove old accessories from rig
+        for _, child in ipairs(rig:GetChildren()) do
+            if child:IsA("Accessory") or (child:IsA("Model") and child:FindFirstChild("Handle")) then
+                child:Destroy()
             end
         end
         -- Load hair & accessories on respawn
